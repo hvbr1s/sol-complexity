@@ -41,47 +41,63 @@ def move_files_to_output():
 # Create the context
 folder_path = './docs'
 solidity_context = read_solidity_files(folder_path)
+print(solidity_context)
 
 # Initialize OpenAI client & Embedding model
 openai_key = os.environ['OPENAI_API_KEY']
 openai_client = AsyncOpenAI(api_key=openai_key)
+openai_model_prod = "gpt-4-turbo"
+openai_model_test = "gpt-4o"
 
 async def analyze_contracts(solidity_context):
-    print("Analyzing your files, sit tight 🔧🔧")     
-    response = await openai_client.chat.completions.create(
-        temperature=0.0,
-        model='gpt-4-turbo',
-        messages=[
-        {"role": "system", "content":ANALYZE},
-        {"role": "user", "content": solidity_context}
-        ],
-        timeout= 30.0,
-    )
+    print("Analyzing your files, sit tight 🔧🔧")
+    try:     
+        response = await openai_client.chat.completions.create(
+            temperature=0.0,
+            model=openai_model_test,
+            messages=[
+            {"role": "system", "content":ANALYZE},
+            {"role": "user", "content": solidity_context}
+            ],
+            timeout= 30,
+        )
+    except Exception as e:
+        print(f"Failed to analyze the code: {e}")
+        return("Snap! Something went wrong, please ask your question again!")
+    print(response)
     return response.choices[0].message.content
 
 async def generate_mermaid(contract_analysis):
     print("Generating Mermaid code 🧜‍♀️🧜‍♀️")
-    response = await openai_client.chat.completions.create(
-        temperature=0.0,
-        model='gpt-4-turbo',
-        messages=[
-        {"role": "system", "content":MAP},
-        {"role": "user", "content": contract_analysis}
-        ],
-        timeout= 30.0,
-    )
+    try:
+        response = await openai_client.chat.completions.create(
+            temperature=0.0,
+            model=openai_model_test,
+            messages=[
+            {"role": "system", "content":MAP},
+            {"role": "user", "content": contract_analysis}
+            ],
+            timeout= 30,
+        )
+    except Exception as e:
+        print(f"Failed to generate Mermaid code: {e}")
+        return("Snap! Something went wrong, please ask your question again!")
     return response.choices[0].message.content
 
-async def simplify_mermaid(mermaid_code):    
-    response = await openai_client.chat.completions.create(
-        temperature=0.0,
-        model='gpt-4-turbo',
-        messages=[
-        {"role": "system", "content":SIMPLIFY},
-        {"role": "user", "content": mermaid_code}
-        ],
-        timeout= 30.0,
-    )
+async def simplify_mermaid(mermaid_code):
+    try:    
+        response = await openai_client.chat.completions.create(
+            temperature=0.0,
+            model=openai_model_test,
+            messages=[
+            {"role": "system", "content":SIMPLIFY},
+            {"role": "user", "content": mermaid_code}
+            ],
+            timeout= 10,
+        )
+    except Exception as e:
+        print(f"Failed to simplify the mapping: {e}")
+        return("Snap! Something went wrong, please ask your question again!")
     return response.choices[0].message.content
 
 async def generate_mermaid_image(mermaid_code, output_file):
@@ -123,7 +139,13 @@ async def save_mermaid_code(mermaid_code, filename):
         await f.write(cleaned_code)
     print(f"Mermaid code saved to {filename}")
 
-def clean_mermaid_code(mermaid_code):
+async def save_mermaid_code(mermaid_code, filename):
+    cleaned_code = await clean_mermaid_code(mermaid_code)
+    with open(filename, 'w') as f:
+        f.write(cleaned_code)
+    print(f"Mermaid code saved to {filename}")
+
+async def clean_mermaid_code(mermaid_code):
     # Remove any leading/trailing whitespace and backticks
     cleaned_code = mermaid_code.strip().strip('`')
     

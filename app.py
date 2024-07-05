@@ -26,7 +26,7 @@ def read_solidity_files(folder_path):
 
 # Function to move files to output directory
 def move_files_to_output():
-    output_dir = '/Users/danieljaheny/Documents/dev/contract-mapper/output'
+    output_dir = './output'
     files_to_move = ['complete_mermaid.mmd', 'complete_mermaid_graph.png', 
                      'simplified_mermaid.mmd', 'simplified_mermaid_graph.png']
     
@@ -39,7 +39,7 @@ def move_files_to_output():
             
 
 # Create the context
-folder_path = '/Users/danieljaheny/Documents/dev/contract-mapper/docs'
+folder_path = './docs'
 solidity_context = read_solidity_files(folder_path)
 
 # Set up the Anthropic client
@@ -54,7 +54,7 @@ async def generate_mermaid(contracts):
     print("Generating Mermaid code 🧜‍♀️🧜‍♀️")
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model=prod_claude_llm,
+                    model=test_claude_llm_opus,
                     system=MAP,
                     temperature=0.0,
                     messages=[
@@ -67,7 +67,7 @@ async def analyze_contracts(contracts):
     print("Analyzing your files, sit tight 🔧🔧")     
     response = await anthropic_client.messages.create(
         max_tokens=2048,
-        model=prod_claude_llm,
+        model=test_claude_llm_opus,
         system=ANALYZE,
         temperature=0.0,
         messages=[
@@ -79,7 +79,7 @@ async def analyze_contracts(contracts):
 async def simplify_mermaid(mermaid_code):    
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model=prod_claude_llm,
+                    model=test_claude_llm_opus,
                     system=SIMPLIFY,
                     temperature=0.0,
                     messages=[
@@ -108,7 +108,7 @@ async def generate_mermaid_image(mermaid_code, output_file):
             '-o', output_file,
             '-w', '2048',
             '-H', '2048',
-            '-s', '2',
+            # '-s', '2',
             '--backgroundColor', 'white',
         ], check=True, capture_output=True, text=True)
         print(f"High-resolution Mermaid graph image saved as {output_file}")

@@ -45,7 +45,8 @@ solidity_context = read_solidity_files(folder_path)
 # Set up the Anthropic client
 anthropic_client = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 prod_claude_llm = "claude-3-5-sonnet-20240620"
-test_claude_llm = "claude-3-sonnet-20240229"
+test_claude_llm_sonnet = "claude-3-sonnet-20240229"
+test_claude_llm_opus= "claude-3-opus-20240229"
 
 
 # Set up worker function

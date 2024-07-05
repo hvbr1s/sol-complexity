@@ -51,7 +51,7 @@ test_claude_llm_opus= "claude-3-opus-20240229"
 
 # Set up worker function
 async def generate_mermaid(contracts):
-    print("Generating Mermaid code 🧜‍♀️")
+    print("Generating Mermaid code 🧜‍♀️🧜‍♀️")
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
                     model=test_claude_llm_opus,
@@ -64,7 +64,7 @@ async def generate_mermaid(contracts):
     return response.content[0].text
 
 async def analyze_contracts(contracts):
-    print("Analyzing your files, sit tight🔧!")     
+    print("Analyzing your files, sit tight 🔧🔧")     
     response = await anthropic_client.messages.create(
         max_tokens=2048,
         model=test_claude_llm_opus,

@@ -102,7 +102,7 @@ async def simplify_mermaid(mermaid_code):
 
 async def generate_mermaid_image(mermaid_code, output_file):
     print("Generating graph 🗺️")
-    cleaned_code = clean_mermaid_code(mermaid_code)
+    cleaned_code = await clean_mermaid_code(mermaid_code)
     
     # Add Mermaid configuration
     mermaid_code = f"""%%{{init: {{'theme': 'default'}}}}%%

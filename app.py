@@ -3,7 +3,7 @@ import asyncio
 import shutil
 from dotenv import main
 from anthropic import AsyncAnthropic
-from system.prompts import PROMPT, SIMPLIFY, ANALYZE
+from system.prompts import MAP, SIMPLIFY, ANALYZE
 from groq import Groq
 import aiofiles
 import subprocess
@@ -44,18 +44,21 @@ def move_files_to_output():
 folder_path = '/Users/danieljaheny/Documents/dev/contract-mapper/docs'
 solidity_context = read_solidity_files(folder_path)
 
-# Combine the prompt and context
-full_prompt = PROMPT + solidity_context
+# # Combine the prompt and context
+# full_prompt = PROMPT + solidity_context
 
 # Set up the Anthropic client
 anthropic_client = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+prod_claude_llm = "claude-3-5-sonnet-20240620"
+test_claude_llm = "claude-3-sonnet-20240229"
+
 
 # Set up worker function
 async def generate_mermaid(contracts):
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model="claude-3-sonnet-20240229",
-                    system=PROMPT,
+                    model=prod_claude_llm,
+                    system=MAP,
                     temperature=0.0,
                     messages=[
                         {"role": "user", "content": contracts}
@@ -66,7 +69,7 @@ async def generate_mermaid(contracts):
 async def analyze_contracts(contracts):     
     response = await anthropic_client.messages.create(
         max_tokens=2048,
-        model="claude-3-sonnet-20240229",
+        model=prod_claude_llm,
         system=ANALYZE,
         temperature=0.0,
         messages=[
@@ -78,7 +81,7 @@ async def analyze_contracts(contracts):
 async def simplify_mermaid(mermaid_code):    
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model="claude-3-sonnet-20240229",
+                    model=prod_claude_llm,
                     system=SIMPLIFY,
                     temperature=0.0,
                     messages=[

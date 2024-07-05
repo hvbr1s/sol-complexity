@@ -4,7 +4,6 @@ import shutil
 from dotenv import main
 from anthropic import AsyncAnthropic
 from system.prompts import MAP, SIMPLIFY, ANALYZE
-from groq import Groq
 import aiofiles
 import subprocess
 
@@ -43,9 +42,6 @@ def move_files_to_output():
 # Create the context
 folder_path = '/Users/danieljaheny/Documents/dev/contract-mapper/docs'
 solidity_context = read_solidity_files(folder_path)
-
-# # Combine the prompt and context
-# full_prompt = PROMPT + solidity_context
 
 # Set up the Anthropic client
 anthropic_client = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
@@ -179,26 +175,3 @@ async def main():
 
 # Run the async main function
 asyncio.run(main())
-
-
-
-##### GROQ RESEARCH
-
-# groq_client =  Groq(api_key=os.environ['GROQ_API_KEY'])
-# response_groq = groq_client.chat.completions.create(
-#     messages=[
-#         {
-#             "role": "system",
-#             "content": PROMPT
-#         },
-#         {
-#             "role": "user",
-#             "content": solidity_context
-#         }
-#     ],
-#     model="llama3-70b-8192",
-#     temperature = 0.0,
-# )
-# # Print Groq-generated graph
-# groq_says = response_groq.choices[0].message.content
-# print(f"{groq_says}\n\n")

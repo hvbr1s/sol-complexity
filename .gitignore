@@ -2,3 +2,4 @@
 /venvmapper
 /docs
 /output
+**/__pycache__

@@ -1,5 +1,6 @@
 .env
 /venvmapper
 /docs
+/bin
 /output
 **/__pycache__

@@ -1,4 +1,5 @@
 import os
+import re
 import asyncio
 import shutil
 from dotenv import main
@@ -17,11 +18,17 @@ def read_solidity_files(folder_path):
     for filename in os.listdir(folder_path):
         if filename.endswith('.sol'):
             with open(os.path.join(folder_path, filename), 'r') as file:
+                content = file.read()
+                # Remove single-line comments and surrounding whitespace
+                content = re.sub(r'\s*//.*?\n', '\n', content)
+                # Remove multi-line comments and surrounding whitespace
+                content = re.sub(r'\s*/\*.*?\*/\s*', '', content, flags=re.DOTALL)
                 context += f"Contract number {file_number}: {filename}\n\n"
-                context += file.read()
+                context += content.strip()  # Remove leading/trailing whitespace
                 context += "\n"
                 context += "###################\n\n"
                 file_number += 1
+    print(context)
     return context
 
 # Function to move files to output directory
@@ -58,7 +65,7 @@ async def analyze_contracts(solidity_context):
             {"role": "system", "content":ANALYZE},
             {"role": "user", "content": solidity_context}
             ],
-            timeout= 30,
+            timeout= 100,
         )
     except Exception as e:
         print(f"Failed to analyze the code: {e}")

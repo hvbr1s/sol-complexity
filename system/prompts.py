@@ -32,10 +32,35 @@ Here are the Solidity files to analyze:
 
 SIMPLIFY = '''
 
-    Simplify the following Mermaid graph code to focus only on user interactions and the journey of a transaction through different contracts. 
-    Keep only the relevant parts that show how a user interacts with the system and how their transaction flows through the contracts.
-    Provide only the simplified Mermaid code as your response, without any additional explanation or markdown formatting.
-    The code should start with 'graph TD' on its own line and not include any ``` markers.
+Simplify the following Mermaid graph code to create a user-centric transaction flow diagram. Follow these guidelines:
+
+1. Focus on user interactions and the journey of a transaction through different contracts.
+2. Include only contracts and functions directly involved in user transactions.
+3. Show how users interact with the system and how their transactions flow through the contracts.
+
+Formatting rules:
+1. Start with 'graph TD' on its own line.
+2. Represent contracts as nodes with their functions listed inside.
+3. Use #40; instead of ( and #41; instead of ).
+4. Use <br> for line breaks within node labels to list functions.
+5. Edge labels should include the function name followed by ' -> ' and a brief description.
+6. Do not include any ``` markers or additional explanations.
+
+Node format:
+ContractName[ContractName<br>- function1#40;#41;<br>- function2#40;#41;]
+
+Edge format:
+ContractA-->|"functionName#40;#41; -> Brief description"|ContractB
+
+Example:
+graph TD
+    User[User]
+    ContractA[ContractA<br>- deposit#40;#41;<br>- withdraw#40;#41;]
+    ContractB[ContractB<br>- process#40;#41;]
+    User-->|"deposit#40;#41; -> Adds funds"|ContractA
+    ContractA-->|"process#40;#41; -> Handles transaction"|ContractB
+
+Provide only the simplified Mermaid code as your response, adhering strictly to these guidelines.
 
 '''
 

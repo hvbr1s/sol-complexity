@@ -1,4 +1,4 @@
-PROMPT = """
+MAP = """
 
 Create a Mermaid graph based on the provided contract analysis. Follow these steps:
 1. Create a node for each contract, listing its functions.

@@ -1,11 +1,9 @@
 import os
 import asyncio
-import shutil
 from dotenv import main
 from anthropic import AsyncAnthropic
-from system.prompts import MAP, SIMPLIFY, ANALYZE
-import aiofiles
-import subprocess
+from system.prompt import PROMPT
+from groq import Groq
 
 # Load secrets
 main.load_dotenv()
@@ -25,153 +23,65 @@ def read_solidity_files(folder_path):
     print(context)
     return context
 
-# Function to move files to output directory
-def move_files_to_output():
-    output_dir = '/Users/danieljaheny/Documents/dev/contract-mapper/output'
-    files_to_move = ['complete_mermaid.mmd', 'complete_mermaid_graph.png', 
-                     'simplified_mermaid.mmd', 'simplified_mermaid_graph.png']
-    
-    for file in files_to_move:
-        if os.path.exists(file):
-            shutil.move(file, os.path.join(output_dir, file))
-            print(f"Moved {file} to {output_dir}")
-        else:
-            print(f"Warning: {file} not found")
-            
-
 # Create the context
 folder_path = '/Users/danieljaheny/Documents/dev/contract-mapper/docs'
 solidity_context = read_solidity_files(folder_path)
 
+# Combine the prompt and context
+full_prompt = PROMPT + solidity_context
+
+##### CLAUDE RESEARCH
+
 # Set up the Anthropic client
 anthropic_client = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-prod_claude_llm = "claude-3-5-sonnet-20240620"
-test_claude_llm = "claude-3-sonnet-20240229"
-
 
 # Set up worker function
-async def generate_mermaid(contracts):
+async def claude_research(contracts, prompt):
+
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model=prod_claude_llm,
-                    system=MAP,
+                    model="claude-3-5-sonnet-20240620",
+                    system=prompt,
                     temperature=0.0,
                     messages=[
                         {"role": "user", "content": contracts}
                     ]
     )
-    return response.content[0].text
+    claude_says =  response.content[0].text
+    return claude_says
 
-async def analyze_contracts(contracts):     
-    response = await anthropic_client.messages.create(
-        max_tokens=2048,
-        model=prod_claude_llm,
-        system=ANALYZE,
-        temperature=0.0,
-        messages=[
-            {"role": "user", "content": contracts}
-        ]
-    )
-    return response.content[0].text
-
-async def simplify_mermaid(mermaid_code):    
-    response = await anthropic_client.messages.create(
-                    max_tokens=2048,
-                    model=prod_claude_llm,
-                    system=SIMPLIFY,
-                    temperature=0.0,
-                    messages=[
-                        {"role": "user", "content": mermaid_code}
-                    ]
-    )
-    return response.content[0].text.strip()
-
-async def generate_mermaid_image(mermaid_code, output_file):
-    cleaned_code = clean_mermaid_code(mermaid_code)
-    
-    # Add Mermaid configuration
-    mermaid_code = f"""%%{{init: {{'theme': 'default'}}}}%%
-{cleaned_code}"""
-    
-    # Save Mermaid code to a temporary file with .mmd extension
-    temp_file = 'temp_mermaid.mmd'
-    async with aiofiles.open(temp_file, mode='w') as f:
-        await f.write(mermaid_code)
-    
-    try:
-        subprocess.run([
-            'mmdc',
-            '-i', temp_file,
-            '-o', output_file,
-            '-w', '2048',
-            '-H', '2048',
-            '-s', '2',
-            '--backgroundColor', 'white'
-        ], check=True, capture_output=True, text=True)
-        print(f"High-resolution Mermaid graph image saved as {output_file}")
-    except subprocess.CalledProcessError as e:
-        print(f"Error generating Mermaid image: {e}")
-        print(f"STDOUT: {e.stdout}")
-        print(f"STDERR: {e.stderr}")
-        print("Problematic Mermaid code:")
-        print(mermaid_code)
-    
-    # Clean up the temporary file
-    os.remove(temp_file)
-
-async def save_mermaid_code(mermaid_code, filename):
-    cleaned_code = clean_mermaid_code(mermaid_code)
-    async with aiofiles.open(filename, mode='w') as f:
-        await f.write(cleaned_code)
-    print(f"Mermaid code saved to {filename}")
-
-def clean_mermaid_code(mermaid_code):
-    # Remove any leading/trailing whitespace and backticks
-    cleaned_code = mermaid_code.strip().strip('`')
-    
-    # Ensure the code starts with 'graph TD'
-    if not cleaned_code.startswith('graph TD'):
-        cleaned_code = 'graph TD\n' + cleaned_code
-    
-    # Remove any lines that contain complex type definitions
-    cleaned_lines = [line for line in cleaned_code.split('\n') if '[]' not in line]
-    
-    return '\n'.join(cleaned_lines)
-
+# Call function
 async def main():
-    # First call: Analyze contracts
-    contract_analysis = await analyze_contracts(solidity_context)
-    print("Contract Analysis:")
-    print(contract_analysis)
+    # Assuming you have solidity_context and full_prompt defined earlier in your code
+    claude_says = await claude_research(contracts=solidity_context, prompt=full_prompt)
     
-    # Second call: Generate initial Mermaid graph
-    initial_mermaid = await generate_mermaid(contract_analysis)
-    
-    if initial_mermaid:
-        print("Initial Mermaid Code:")
-        print(f"{initial_mermaid}\n\n")
-        
-        # Save and generate image for initial Mermaid code
-        await save_mermaid_code(initial_mermaid, 'complete_mermaid.mmd')
-        await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png')
-        
-        # Simplify the Mermaid code
-        simplified_mermaid = await simplify_mermaid(initial_mermaid)
-        
-        if simplified_mermaid:
-            print("Simplified Mermaid Code:")
-            print(f"{simplified_mermaid}\n\n")
-            
-            # Save and generate image for simplified Mermaid code
-            await save_mermaid_code(simplified_mermaid, 'simplified_mermaid.mmd')
-            await generate_mermaid_image(simplified_mermaid, 'simplified_mermaid_graph.png')
-        else:
-            print("Failed to simplify the Mermaid code.")
+    if claude_says:
+        # Print Claude-generated graph
+        print(f"{claude_says}\n\n")
     else:
-        print("Failed to generate initial Mermaid code.")
-    
-    # Move all generated files to the output directory
-    move_files_to_output()
+        print("Failed to get a response from Claude.")
 
 # Run the async main function
 asyncio.run(main())
+
+##### GROQ RESEARCH
+
+# groq_client =  Groq(api_key=os.environ['GROQ_API_KEY'])
+# response_groq = groq_client.chat.completions.create(
+#     messages=[
+#         {
+#             "role": "system",
+#             "content": PROMPT
+#         },
+#         {
+#             "role": "user",
+#             "content": solidity_context
+#         }
+#     ],
+#     model="llama3-70b-8192",
+#     temperature = 0.0,
+# )
+# # Print Groq-generated graph
+# groq_says = response_groq.choices[0].message.content
+# print(f"{groq_says}\n\n")
+

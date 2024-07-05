@@ -9,8 +9,8 @@ Create a Mermaid graph based on the provided contract analysis. Follow these ste
         UserWallet[User Wallet]
         ContractA[ContractA<br>- function1#40;#41;<br>- function2#40;#41;]
         ContractB[ContractB<br>- functionA#40;#41;<br>- functionB#40;#41;]
-        UserWallet-->|"callFunction1#40;#41; #40;Initiates action#41;"|ContractA
-        ContractA-->|"callFunctionA#40;#41; #40;Performs task#41;"|ContractB
+        UserWallet-->|"callFunction1#40;#41; -> Initiates action"|ContractA
+        ContractA-->|"callFunctionA#40;#41; -> Performs task"|ContractB
 
 Include all contracts, their functions, and all possible interactions.
 Provide ONLY the Mermaid code as your response, WITHOUT any additional explanation.
@@ -19,7 +19,7 @@ The code should start with 'graph TD' on its own line and NEVER include any ``` 
 IMPORTANT: 
 1. Never use parenthesis in your response. Instead, use #40; to represent an opening parenthesis and #41; to represent a closing parenthesis.
 2. Use <br> for line breaks within node labels to list functions.
-3. Edge labels should include the function name and a brief description.
+3. Edge labels should include the function name and a brief description preceded by a ->
 4. Start with 'graph TD' on its own line.
 5. Do not include any ``` markers or additional explanations.
 
@@ -46,28 +46,68 @@ Analyze the provided Solidity smart contracts. Follow these steps:
 1. Identify all contracts in the provided files.
 2. For each contract, identify public and external functions.
 3. Analyze function bodies to detect calls to other contracts or functions.
+4. Identify inheritance relationships between contracts.
+5. Detect state variables that reference other contracts.
 
 Provide your response as a JSON structure with the following format:
 {
     "contracts": [
         {
             "name": "ContractName",
+            "inheritsFrom": ["ParentContract1", "ParentContract2"],
+            "stateVariables": [
+                {
+                    "name": "variableName",
+                    "type": "ContractType",
+                    "visibility": "public/private/internal"
+                }
+            ],
             "functions": [
                 {
                     "name": "functionName",
                     "visibility": "public/external",
-                    "calls": ["OtherContract.someFunction", "AnotherContract.otherFunction"]
+                    "calls": [
+                        {
+                            "contract": "OtherContract",
+                            "function": "someFunction"
+                        }
+                    ],
+                    "modifies": [
+                        {
+                            "contract": "SomeContract",
+                            "stateVariable": "variableName"
+                        }
+                    ]
                 }
             ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": "inheritance",
+            "from": "ChildContract",
+            "to": "ParentContract"
+        },
+        {
+            "type": "composition",
+            "from": "ContainerContract",
+            "to": "ContainedContract",
+            "via": "stateVariableName"
+        },
+        {
+            "type": "interaction",
+            "from": "CallingContract",
+            "to": "CalledContract",
+            "via": "functionName"
         }
     ]
 }
 
-Include all contracts and their relevant functions. Do not include any explanation, only the JSON structure.
+Include all contracts and their relevant functions, state variables, and relationships. Do not include any explanation, only the JSON structure.
 
 Here are the Solidity smart contracts to analyze:
-\n\n
+\n
 #############
-\n\n
+\n
 
 """

@@ -22,7 +22,6 @@ def read_solidity_files(folder_path):
                 context += "\n"
                 context += "###################\n\n"
                 file_number += 1
-    print(context)
     return context
 
 # Function to move files to output directory
@@ -34,9 +33,9 @@ def move_files_to_output():
     for file in files_to_move:
         if os.path.exists(file):
             shutil.move(file, os.path.join(output_dir, file))
-            print(f"Moved {file} to {output_dir}")
         else:
             print(f"Warning: {file} not found")
+    print(f"Moved files to {output_dir}📮📮")
             
 
 # Create the context
@@ -51,9 +50,10 @@ test_claude_llm = "claude-3-sonnet-20240229"
 
 # Set up worker function
 async def generate_mermaid(contracts):
+    print("Generating Mermaid code 🧜‍♀️🧜‍♀️")
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model=prod_claude_llm,
+                    model=test_claude_llm,
                     system=MAP,
                     temperature=0.0,
                     messages=[
@@ -62,10 +62,11 @@ async def generate_mermaid(contracts):
     )
     return response.content[0].text
 
-async def analyze_contracts(contracts):     
+async def analyze_contracts(contracts):
+    print("Analyzing your files, sit tight 🔧🔧")     
     response = await anthropic_client.messages.create(
         max_tokens=2048,
-        model=prod_claude_llm,
+        model=test_claude_llm,
         system=ANALYZE,
         temperature=0.0,
         messages=[
@@ -77,7 +78,7 @@ async def analyze_contracts(contracts):
 async def simplify_mermaid(mermaid_code):    
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model=prod_claude_llm,
+                    model=test_claude_llm,
                     system=SIMPLIFY,
                     temperature=0.0,
                     messages=[
@@ -87,6 +88,7 @@ async def simplify_mermaid(mermaid_code):
     return response.content[0].text.strip()
 
 async def generate_mermaid_image(mermaid_code, output_file):
+    print("Generating graph 🗺️")
     cleaned_code = clean_mermaid_code(mermaid_code)
     
     # Add Mermaid configuration
@@ -106,7 +108,7 @@ async def generate_mermaid_image(mermaid_code, output_file):
             '-w', '2048',
             '-H', '2048',
             '-s', '2',
-            '--backgroundColor', 'white'
+            '--backgroundColor', 'white',
         ], check=True, capture_output=True, text=True)
         print(f"High-resolution Mermaid graph image saved as {output_file}")
     except subprocess.CalledProcessError as e:
@@ -114,7 +116,6 @@ async def generate_mermaid_image(mermaid_code, output_file):
         print(f"STDOUT: {e.stdout}")
         print(f"STDERR: {e.stderr}")
         print("Problematic Mermaid code:")
-        print(mermaid_code)
     
     # Clean up the temporary file
     os.remove(temp_file)
@@ -141,8 +142,7 @@ def clean_mermaid_code(mermaid_code):
 async def main():
     # First call: Analyze contracts
     contract_analysis = await analyze_contracts(solidity_context)
-    print("Contract Analysis:")
-    print(contract_analysis)
+    print("Done analyzing your files 🫡🫡")
     
     # Second call: Generate initial Mermaid graph
     initial_mermaid = await generate_mermaid(contract_analysis)

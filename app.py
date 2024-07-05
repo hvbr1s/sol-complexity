@@ -3,7 +3,7 @@ import asyncio
 import shutil
 from dotenv import main
 from anthropic import AsyncAnthropic
-from system.prompts import PROMPT, SIMPLIFY
+from system.prompts import MAP, SIMPLIFY, ANALYZE
 from groq import Groq
 import aiofiles
 import subprocess
@@ -44,18 +44,21 @@ def move_files_to_output():
 folder_path = '/Users/danieljaheny/Documents/dev/contract-mapper/docs'
 solidity_context = read_solidity_files(folder_path)
 
-# Combine the prompt and context
-full_prompt = PROMPT + solidity_context
+# # Combine the prompt and context
+# full_prompt = PROMPT + solidity_context
 
 # Set up the Anthropic client
 anthropic_client = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+prod_claude_llm = "claude-3-5-sonnet-20240620"
+test_claude_llm = "claude-3-sonnet-20240229"
+
 
 # Set up worker function
-async def claude_research(contracts, prompt):
+async def generate_mermaid(contracts):
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model="claude-3-sonnet-20240229",
-                    system=prompt,
+                    model=prod_claude_llm,
+                    system=MAP,
                     temperature=0.0,
                     messages=[
                         {"role": "user", "content": contracts}
@@ -63,10 +66,22 @@ async def claude_research(contracts, prompt):
     )
     return response.content[0].text
 
+async def analyze_contracts(contracts):     
+    response = await anthropic_client.messages.create(
+        max_tokens=2048,
+        model=prod_claude_llm,
+        system=ANALYZE,
+        temperature=0.0,
+        messages=[
+            {"role": "user", "content": contracts}
+        ]
+    )
+    return response.content[0].text
+
 async def simplify_mermaid(mermaid_code):    
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model="claude-3-sonnet-20240229",
+                    model=prod_claude_llm,
                     system=SIMPLIFY,
                     temperature=0.0,
                     messages=[
@@ -128,8 +143,13 @@ def clean_mermaid_code(mermaid_code):
     return '\n'.join(cleaned_lines)
 
 async def main():
-    # Generate initial Mermaid code
-    initial_mermaid = await claude_research(contracts=solidity_context, prompt=full_prompt)
+    # First call: Analyze contracts
+    contract_analysis = await analyze_contracts(solidity_context)
+    print("Contract Analysis:")
+    print(contract_analysis)
+    
+    # Second call: Generate initial Mermaid graph
+    initial_mermaid = await generate_mermaid(contract_analysis)
     
     if initial_mermaid:
         print("Initial Mermaid Code:")

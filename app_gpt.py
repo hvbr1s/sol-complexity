@@ -41,7 +41,6 @@ def move_files_to_output():
 # Create the context
 folder_path = './docs'
 solidity_context = read_solidity_files(folder_path)
-print(solidity_context)
 
 # Initialize OpenAI client & Embedding model
 openai_key = os.environ['OPENAI_API_KEY']
@@ -54,7 +53,7 @@ async def analyze_contracts(solidity_context):
     try:     
         response = await openai_client.chat.completions.create(
             temperature=0.0,
-            model=openai_model_test,
+            model=openai_model_prod,
             messages=[
             {"role": "system", "content":ANALYZE},
             {"role": "user", "content": solidity_context}
@@ -64,7 +63,7 @@ async def analyze_contracts(solidity_context):
     except Exception as e:
         print(f"Failed to analyze the code: {e}")
         return("Snap! Something went wrong, please ask your question again!")
-    print(response)
+    
     return response.choices[0].message.content
 
 async def generate_mermaid(contract_analysis):
@@ -72,7 +71,7 @@ async def generate_mermaid(contract_analysis):
     try:
         response = await openai_client.chat.completions.create(
             temperature=0.0,
-            model=openai_model_test,
+            model=openai_model_prod,
             messages=[
             {"role": "system", "content":MAP},
             {"role": "user", "content": contract_analysis}
@@ -88,7 +87,7 @@ async def simplify_mermaid(mermaid_code):
     try:    
         response = await openai_client.chat.completions.create(
             temperature=0.0,
-            model=openai_model_test,
+            model=openai_model_prod,
             messages=[
             {"role": "system", "content":SIMPLIFY},
             {"role": "user", "content": mermaid_code}
@@ -120,7 +119,7 @@ async def generate_mermaid_image(mermaid_code, output_file):
             '-o', output_file,
             '-w', '2048',
             '-H', '2048',
-            # '-s', '2',
+            '-s', '2',
             '--backgroundColor', 'white',
         ], check=True, capture_output=True, text=True)
         print(f"High-resolution Mermaid graph image saved as {output_file}")

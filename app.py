@@ -53,7 +53,7 @@ async def generate_mermaid(contracts):
     print("Generating Mermaid code 🧜‍♀️🧜‍♀️")
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model=test_claude_llm,
+                    model=prod_claude_llm,
                     system=MAP,
                     temperature=0.0,
                     messages=[
@@ -66,7 +66,7 @@ async def analyze_contracts(contracts):
     print("Analyzing your files, sit tight 🔧🔧")     
     response = await anthropic_client.messages.create(
         max_tokens=2048,
-        model=test_claude_llm,
+        model=prod_claude_llm,
         system=ANALYZE,
         temperature=0.0,
         messages=[
@@ -78,7 +78,7 @@ async def analyze_contracts(contracts):
 async def simplify_mermaid(mermaid_code):    
     response = await anthropic_client.messages.create(
                     max_tokens=2048,
-                    model=test_claude_llm,
+                    model=prod_claude_llm,
                     system=SIMPLIFY,
                     temperature=0.0,
                     messages=[

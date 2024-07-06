@@ -28,7 +28,6 @@ def read_solidity_files(folder_path):
                 context += "\n"
                 context += "###################\n\n"
                 file_number += 1
-    print(context)
     return context
 
 # Function to move files to output directory
@@ -66,6 +65,7 @@ async def analyze_contracts(solidity_context):
             {"role": "user", "content": solidity_context}
             ],
             timeout= 100,
+            response_format={ "type": "json_object" }
         )
     except Exception as e:
         print(f"Failed to analyze the code: {e}")
@@ -78,7 +78,7 @@ async def generate_mermaid(contract_analysis):
     try:
         response = await openai_client.chat.completions.create(
             temperature=0.0,
-            model=openai_model_prod,
+            model=openai_model_test,
             messages=[
             {"role": "system", "content":MAP},
             {"role": "user", "content": contract_analysis}
@@ -94,7 +94,7 @@ async def simplify_mermaid(mermaid_code):
     try:    
         response = await openai_client.chat.completions.create(
             temperature=0.0,
-            model=openai_model_prod,
+            model=openai_model_test,
             messages=[
             {"role": "system", "content":SIMPLIFY},
             {"role": "user", "content": mermaid_code}
@@ -168,6 +168,7 @@ async def main():
     # First call: Analyze contracts
     contract_analysis = await analyze_contracts(solidity_context)
     print("Done analyzing your files 🫡🫡")
+    print(contract_analysis)
     
     # Second call: Generate initial Mermaid graph
     initial_mermaid = await generate_mermaid(contract_analysis)

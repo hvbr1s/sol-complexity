@@ -3,7 +3,7 @@ MAP = """
 Create a Mermaid graph based on the provided contract analysis. Follow these steps:
 1. Create a node for each unique contract, ALWAYS listing its functions and their visibility.
 2. Create edges for function calls between contracts and from the user's wallet.
-3. Focus only on the interactions between contracts.
+3. Include all unique contracts, their functions and visibility, and all possible interactions between them.
 4. ALWAYS ignore interactions where the "from" and "to" contracts are the same.
 5. Use the following Mermaid syntax:
     graph TD
@@ -13,16 +13,12 @@ Create a Mermaid graph based on the provided contract analysis. Follow these ste
         UserWallet-->|"callFunction1#40;#41; -> Initiates action"|ContractA
         ContractA-->|"callFunctionA#40;#41; -> Performs task"|ContractB
 
-Include all unique contracts, their public functions and visibility, and all possible interactions between them.
-Provide ONLY the Mermaid code as your response, WITHOUT any additional explanation.
-The code should start with 'graph TD' on its own line and NEVER include any ``` markers or additional explanations or comments.
-
 IMPORTANT: 
 1. Never use parenthesis in your response. Instead, use #40; to represent an opening parenthesis and #41; to represent a closing parenthesis.
 2. Use <br> for line breaks within node labels to list ALL the functions and their visibility.
 3. Edge labels should include the function name and a brief description preceded by a ->
 4. Start with 'graph TD' on its own line.
-5. Do not include any ``` markers or additional explanations.
+5. Do not include any ``` markers or additional explanations. Provide ONLY the Mermaid code as your response, WITHOUT any additional explanation.
 
 Here is the analysis for each contract:
 \n

@@ -1,12 +1,11 @@
 MAP = """
 
 Create a Mermaid graph based on the provided contract analysis. Follow these steps:
-1. Create a node for each unique contract, listing its public functions and their visibility.
-2. Optionally, include the function modifiers (e.g., onlyOwner, requireSomething) in the node labels.
-3. Create edges for function calls between contracts and from the user's wallet.
-4. Focus only on the interactions between contracts, and skip internal contract function calls.
-5. ALWAYS ignore interactions where the "from" and "to" contracts are the same.
-6. Use the following Mermaid syntax:
+1. Create a node for each unique contract, ALWAYS listing its functions and their visibility.
+2. Create edges for function calls between contracts and from the user's wallet.
+3. Focus only on the interactions between contracts.
+4. ALWAYS ignore interactions where the "from" and "to" contracts are the same.
+5. Use the following Mermaid syntax:
     graph TD
         UserWallet[User Wallet]
         ContractA[ContractA<br>- function1#40;#41; : public<br>- function2#40;#41; : external]
@@ -20,7 +19,7 @@ The code should start with 'graph TD' on its own line and NEVER include any ``` 
 
 IMPORTANT: 
 1. Never use parenthesis in your response. Instead, use #40; to represent an opening parenthesis and #41; to represent a closing parenthesis.
-2. Use <br> for line breaks within node labels to list functions and their visibility.
+2. Use <br> for line breaks within node labels to list ALL the functions and their visibility.
 3. Edge labels should include the function name and a brief description preceded by a ->
 4. Start with 'graph TD' on its own line.
 5. Do not include any ``` markers or additional explanations.

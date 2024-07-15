@@ -195,10 +195,7 @@ async def main():
             
             # Write the content to the file in Markdown format
             with open(filename, 'w') as f:
-                f.write("# Simplified Mermaid Diagram\n\n")
-                f.write("```mermaid\n")
                 f.write(simplified_mermaid)
-                f.write("\n```\n")
             
             print(f"Contract summary saved to {filename}")
             

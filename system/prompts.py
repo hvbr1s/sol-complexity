@@ -37,7 +37,8 @@ Here is the contract analysis:
 
 SIMPLIFY = '''
 
-You are tasked with analyzing Mermaid code that represents the mapping of possible interactions and calls between multiple smart contracts. Your goal is to provide a written summary of what the contracts are doing and describe a common example of a user transaction while interacting with these contracts.
+You are tasked with analyzing Mermaid code that represents the mapping of possible interactions and calls between multiple smart contracts. 
+Your goal is to provide a written summary of what the contracts are doing and describe a common example of a user transaction while interacting with these contracts.
 
 Please follow these steps:
 
@@ -61,19 +62,18 @@ Please follow these steps:
 
 6. Provide your analysis in the following format:
 
-<contract_summary>
+## SUMMARY 
 [Your summary of what the contracts are doing, based on your analysis of the Mermaid code]
-</contract_summary>
 
-<user_transaction_example>
+
+##USER TX EXAMPLE
 [Your description of a common example of a user transaction interacting with the contracts]
-</user_transaction_example>
 
 Remember to be clear and concise in your explanations, avoiding technical jargon where possible. Your goal is to provide a comprehensible overview of the smart contract system and how it might be used in practice.
 
 ###############
 
-Here is the Mermaid code to analyze:
+Here's the mermaid code to analyze, begin:
 
 '''
 

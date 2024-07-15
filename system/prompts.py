@@ -1,81 +1,97 @@
 MAP = """
 
-Create a Mermaid graph based on the provided contract analysis. Follow these steps:
-1. Create a node for each unique contract, ALWAYS listing its functions and their visibility.
-2. Create edges for function calls between contracts and from the user's wallet.
-3. Include all unique contracts, their functions and visibility, and all possible interactions between them.
-4. ALWAYS ignore interactions where the "from" and "to" contracts are the same.
-5. Use the following Mermaid syntax:
-    graph TD
-        UserWallet[User Wallet]
-        ContractA[ContractA<br>- function1#40;#41; : public<br>- function2#40;#41; : external]
-        ContractB[ContractB<br>- functionA#40;#41; : public<br>- functionB#40;#41; : internal]
-        UserWallet-->|"callFunction1#40;#41; -> Initiates action"|ContractA
-        ContractA-->|"callFunctionA#40;#41; -> Performs task"|ContractB
+You are tasked with creating a Mermaid graph based on a provided contract analysis. This graph will visualize the relationships between contracts, their functions, and interactions.
 
-IMPORTANT: 
+Follow these steps to create the Mermaid graph:
+
+1. Identify all unique contracts mentioned in the analysis.
+2. For each contract, create a node that lists ALL of its functions and their visibility.
+3. Identify all function calls between contracts and from the user's wallet.
+4. Create edges to represent these function calls.
+5. Ignore any interactions where the "from" and "to" contracts are the same.
+
+Use the following Mermaid syntax:
+
+graph TD
+    UserWallet[User Wallet]
+    ContractA[ContractA<br>- function1#40;#41; : public<br>- function2#40;#41; : external]
+    ContractB[ContractB<br>- functionA#40;#41; : public<br>- functionB#40;#41; : internal]
+    UserWallet-->|"callFunction1#40;#41; -> Initiates action"|ContractA
+    ContractA-->|"callFunctionA#40;#41; -> Performs task"|ContractB
+
+Important rules to follow:
 1. Never use parenthesis in your response. Instead, use #40; to represent an opening parenthesis and #41; to represent a closing parenthesis.
 2. Use <br> for line breaks within node labels to list ALL the functions and their visibility.
 3. Edge labels should include the function name and a brief description preceded by a ->
 4. Start with 'graph TD' on its own line.
-5. Do not include any ``` markers or additional explanations. Provide ONLY the Mermaid code as your response, WITHOUT any additional explanation.
+5. Include all unique contracts, their functions and visibility, and all possible interactions between them.
 
-Here is the analysis for each contract:
-\n
-#############
-\n
+Provide ONLY the Mermaid code as your response, without any additional explanation or markdown formatting. Do not include any ``` markers or explanations outside of the Mermaid syntax.
+
+##############
+
+Here is the contract analysis:
+
 
 """
 
 SIMPLIFY = '''
 
-Simplify the following Mermaid graph code to create a user-centric transaction flow diagram for a specific user interaction. Follow these guidelines:
+You are tasked with analyzing Mermaid code that represents the mapping of possible interactions and calls between multiple smart contracts. Your goal is to provide a written summary of what the contracts are doing and describe a common example of a user transaction while interacting with these contracts.
 
-1. Focus on a single user interaction and the flow of that transaction through different contracts.
-2. Include only the contracts and functions directly involved in the chosen user interaction.
-3. Show how the user interacts with the system and how their transaction flows through the contracts.
+Please follow these steps:
 
-Formatting rules:
-1. Start with 'graph TD' on its own line.
-2. Represent contracts as nodes with their functions listed inside.
-3. Use #40; instead of ( and #41; instead of ).
-4. Use <br> for line breaks within node labels to list functions and their visibility/modifiers.
-5. Edge labels should include the function name followed by ' -> ' and a brief description.
-6. Do not include any ``` markers or additional explanations.
-7. Make sure every edge is represented in a unique color.
+1. Carefully examine the Mermaid code and identify all the smart contracts represented in the diagram.
 
-Node format:
-ContractName[ContractName<br>- function1#40;#41; : public<br>- function2#40;#41; : external #40;onlyOwner#41;]
+2. Analyze the interactions and calls between the contracts, paying attention to the direction of arrows and any labels on the connections.
 
-Edge format:
-ContractA-->|"functionName#40;#41; -> Brief description"|ContractB
+3. In your mind, create a clear picture of how these contracts work together and what their main purposes are.
 
-Example:
-graph TD
-    User[User]
-    ContractA[ContractA<br>- deposit#40;#41; : public<br>- withdraw#40;#41; : external]
-    ContractB[ContractB<br>- process#40;#41; : public]
-    User-->|"deposit#40;#41; -> Adds funds"|ContractA
-    ContractA-->|"process#40;#41; -> Handles transaction"|ContractB
+4. Prepare a summary of what the contracts are doing. This should include:
+   - The names of the main contracts
+   - The primary function of each contract
+   - How the contracts interact with each other
+   - Any notable features or patterns in the contract ecosystem
 
-Provide only the simplified Mermaid code as your response, adhering strictly to these guidelines.
+5. Think of a common example of how a user might interact with this system of contracts. Consider:
+   - What action might a user typically want to perform?
+   - Which contract would they interact with first?
+   - How would their action propagate through the system?
+   - What would be the end result of their transaction?
 
-Here is the analysis for the specific user interaction to focus on:
-\n
-#############
-\n
+6. Provide your analysis in the following format:
+
+<contract_summary>
+[Your summary of what the contracts are doing, based on your analysis of the Mermaid code]
+</contract_summary>
+
+<user_transaction_example>
+[Your description of a common example of a user transaction interacting with the contracts]
+</user_transaction_example>
+
+Remember to be clear and concise in your explanations, avoiding technical jargon where possible. Your goal is to provide a comprehensible overview of the smart contract system and how it might be used in practice.
+
+###############
+
+Here is the Mermaid code to analyze:
 
 '''
 
 
-ANALYZE = """
+ANALYZE = '''
 
-Analyze the provided Solidity smart contracts and create a mapping of the transaction flow and contract interactions. Follow these steps:
+You will be analyzing Solidity smart contracts to create a mapping of the transaction flow and contract interactions.
+
+Your task is to follow these steps:
 
 1. Identify the entry points (public/external functions) for user interactions.
 2. For each entry point, trace the control flow and identify the sequence of contract calls.
 3. Include information about the contract, function name, function visibility, and a brief description of the action performed.
-4. Represent the transaction flow and contract interactions as a JSON structure with the following format:
+4. Represent the transaction flow and contract interactions as a JSON structure.
+
+Analyze the provided Solidity smart contracts carefully. Pay attention to function declarations, their visibility (public, external, internal), and any modifiers they may have. Also, look for interactions between contracts through function calls or imports.
+
+Create a JSON structure with the following format to represent the transaction flow and contract interactions:
 
 {
     "transactionFlow": [
@@ -83,22 +99,10 @@ Analyze the provided Solidity smart contracts and create a mapping of the transa
             "contract": "ContractName",
             "function": "functionName",
             "visibility": "public/external/internal",
-            "modifiers": ["onlyOwner", "requireSomething"],
-            "description": "Performs some action"
+            "modifiers": ["modifier1", "modifier2"],
+            "description": "Brief description of the action performed"
         },
-        {
-            "contract": "OtherContract",
-            "function": "anotherFunction",
-            "visibility": "public/external/internal",
-            "modifiers": ["onlyAdmin"],
-            "description": "Performs a supporting action"
-        },
-        {
-            "contract": "HelperLibrary",
-            "function": "helperFunction",
-            "visibility": "public/external/internal",
-            "description": "Provides utility functionality"
-        }
+        // Add more entries as needed
     ],
     "contractInteractions": [
         {
@@ -106,21 +110,17 @@ Analyze the provided Solidity smart contracts and create a mapping of the transa
             "to": "CalledContract",
             "via": "functionName"
         },
-        {
-            "from": "ContractA",
-            "to": "ContractB",
-            "via": "anotherFunctionName"
-        }
-    ],
+        // Add more entries as needed
+    ]
 }
 
 Include only the essential contract interactions that are part of the main transaction flow. Avoid including unnecessary details about the contracts, state variables, and internal function calls.
 
-Provide ONLY the JSON structure as your response, without any additional explanation.
+Provide ONLY the JSON structure as your response, without any additional explanation. Ensure that your JSON is properly formatted and valid.
+
+########################
 
 Here are the Solidity smart contracts to analyze:
-\n
-#############
-\n
 
-"""
+
+'''

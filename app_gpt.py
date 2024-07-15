@@ -33,8 +33,7 @@ def read_solidity_files(folder_path):
 # Function to move files to output directory
 def move_files_to_output():
     output_dir = './output'
-    files_to_move = ['complete_mermaid.mmd', 'complete_mermaid_graph.png', 
-                     'simplified_mermaid.mmd', 'simplified_mermaid_graph.png']
+    files_to_move = ['complete_mermaid.mmd', 'complete_mermaid_graph.png']
     
     for file in files_to_move:
         if os.path.exists(file):
@@ -59,7 +58,7 @@ async def analyze_contracts(solidity_context):
     try:     
         response = await openai_client.chat.completions.create(
             temperature=0.0,
-            model=openai_model_prod,
+            model=openai_model_test,
             messages=[
             {"role": "system", "content":ANALYZE},
             {"role": "user", "content": solidity_context}
@@ -99,7 +98,7 @@ async def simplify_mermaid(mermaid_code):
             {"role": "system", "content":SIMPLIFY},
             {"role": "user", "content": mermaid_code}
             ],
-            timeout= 10,
+            timeout= 30,
         )
     except Exception as e:
         print(f"Failed to simplify the mapping: {e}")
@@ -182,15 +181,27 @@ async def main():
         await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png')
         
         # Simplify the Mermaid code
+        print('Writing an explanation 📜')
         simplified_mermaid = await simplify_mermaid(initial_mermaid)
         
         if simplified_mermaid:
             print("Simplified Mermaid Code:")
             print(f"{simplified_mermaid}\n\n")
             
-            # Save and generate image for simplified Mermaid code
-            await save_mermaid_code(simplified_mermaid, 'simplified_mermaid.mmd')
-            await generate_mermaid_image(simplified_mermaid, 'simplified_mermaid_graph.png')
+                        
+            # Define the full path for the file
+            output_dir = "./output"
+            filename = os.path.join(output_dir, "simplified_mermaid.md")
+            
+            # Write the content to the file in Markdown format
+            with open(filename, 'w') as f:
+                f.write("# Simplified Mermaid Diagram\n\n")
+                f.write("```mermaid\n")
+                f.write(simplified_mermaid)
+                f.write("\n```\n")
+            
+            print(f"Contract summary saved to {filename}")
+            
         else:
             print("Failed to simplify the Mermaid code.")
     else:

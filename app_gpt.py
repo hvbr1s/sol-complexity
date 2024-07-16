@@ -164,7 +164,7 @@ async def clean_mermaid_code(mermaid_code):
     return '\n'.join(cleaned_lines)
 
 async def find_bugs(contract_analysis):
-    print("Generating Mermaid code 🧜‍♀️🧜‍♀️")
+    print("Looking for bugs 🪲👀")
     try:
         response = await openai_client.chat.completions.create(
             temperature=0.0,
@@ -216,7 +216,7 @@ async def main():
             
             print(f"Summary saved to {filename_mermaid}")
             
-            bugs  = await find_bugs(simplified_mermaid)
+            bugs  = await find_bugs(solidity_context)
             filename_bug = os.path.join(output_dir, "bug_report.md")
             with open(filename_bug, 'w') as fil:
                 fil.write(bugs)

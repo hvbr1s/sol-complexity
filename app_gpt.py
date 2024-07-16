@@ -4,7 +4,7 @@ import asyncio
 import shutil
 from dotenv import main
 from openai import AsyncOpenAI
-from system.prompts import MAP, SIMPLIFY, ANALYZE
+from system.prompts import MAP, SIMPLIFY, ANALYZE, FIND_BUGS
 import aiofiles
 import subprocess
 
@@ -82,7 +82,7 @@ async def generate_mermaid(contract_analysis):
             {"role": "system", "content":MAP},
             {"role": "user", "content": contract_analysis}
             ],
-            timeout= 30,
+            timeout= 60,
         )
     except Exception as e:
         print(f"Failed to generate Mermaid code: {e}")
@@ -163,6 +163,23 @@ async def clean_mermaid_code(mermaid_code):
     
     return '\n'.join(cleaned_lines)
 
+async def find_bugs(contract_analysis):
+    print("Generating Mermaid code 🧜‍♀️🧜‍♀️")
+    try:
+        response = await openai_client.chat.completions.create(
+            temperature=0.0,
+            model=openai_model_test,
+            messages=[
+            {"role": "system", "content":FIND_BUGS},
+            {"role": "user", "content": contract_analysis}
+            ],
+            timeout= 100,
+        )
+    except Exception as e:
+        print(f"Failed to generate security report: {e}")
+        return("Snap! ailed to generate security report!")
+    return response.choices[0].message.content
+
 async def main():
     # First call: Analyze contracts
     contract_analysis = await analyze_contracts(solidity_context)
@@ -191,13 +208,19 @@ async def main():
                         
             # Define the full path for the file
             output_dir = "./output"
-            filename = os.path.join(output_dir, "simplified_mermaid.md")
+            filename_mermaid = os.path.join(output_dir, "summary.md")
             
             # Write the content to the file in Markdown format
-            with open(filename, 'w') as f:
+            with open(filename_mermaid, 'w') as f:
                 f.write(simplified_mermaid)
             
-            print(f"Contract summary saved to {filename}")
+            print(f"Summary saved to {filename_mermaid}")
+            
+            bugs  = await find_bugs(simplified_mermaid)
+            filename_bug = os.path.join(output_dir, "bug_report.md")
+            with open(filename_bug, 'w') as fil:
+                fil.write(bugs)
+            print(filename_bug)
             
         else:
             print("Failed to simplify the Mermaid code.")

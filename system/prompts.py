@@ -179,7 +179,7 @@ async def peprare_summarize_prompt(focus):
 
         ###############
 
-        Here's the mermaid code to analyze, begin:
+        Here's the Solidity code to analyze, begin:
 
         '''
         return SUMMARIZE

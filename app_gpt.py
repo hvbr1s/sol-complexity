@@ -19,10 +19,6 @@ def read_solidity_files(folder_path):
         if filename.endswith('.sol'):
             with open(os.path.join(folder_path, filename), 'r') as file:
                 content = file.read()
-                # Remove single-line comments and surrounding whitespace
-                content = re.sub(r'\s*//.*?\n', '\n', content)
-                # Remove multi-line comments and surrounding whitespace
-                content = re.sub(r'\s*/\*.*?\*/\s*', '', content, flags=re.DOTALL)
                 context += f"Contract number {file_number}: {filename}\n\n"
                 context += content.strip()  # Remove leading/trailing whitespace
                 context += "\n"
@@ -197,13 +193,13 @@ async def main():
         await save_mermaid_code(initial_mermaid, 'complete_mermaid.mmd')
         await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png')
         
-        # Simplify the Mermaid code
+        # Provide code summary
         print('Writing an explanation 📜')
-        simplified_mermaid = await simplify_mermaid(initial_mermaid)
+        summary = await simplify_mermaid(solidity_context)
         
-        if simplified_mermaid:
+        if summary:
             print("Simplified Mermaid Code:")
-            print(f"{simplified_mermaid}\n\n")
+            print(f"{summary}\n\n")
             
                         
             # Define the full path for the file
@@ -212,7 +208,7 @@ async def main():
             
             # Write the content to the file in Markdown format
             with open(filename_mermaid, 'w') as f:
-                f.write(simplified_mermaid)
+                f.write(summary)
             
             print(f"Summary saved to {filename_mermaid}")
             

@@ -205,8 +205,12 @@ async def main():
         
         # Save and generate image for initial Mermaid code
         await save_mermaid_code(initial_mermaid, 'complete_mermaid.mmd')
-        # await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png') # optional step for generating a mermaid graph locally
-        
+        try:
+            await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png') # optional step for generating a mermaid graph locally
+        except Exception as e:
+            print(e)
+
+        # Prepare bug report    
         bugs  = await find_bugs(solidity_context)
         filename_bug = os.path.join(output_dir, "bug_report.md")
         with open(filename_bug, 'w') as fil:
@@ -214,10 +218,10 @@ async def main():
         print(filename_bug)
         
     else:
-        print("Failed to simplify the Mermaid code.")
+        print("Failed to analyze code!.")
     
     # Move all generated files to the output directory
     move_files_to_output()
-    
+
 # Run the async main function
 asyncio.run(main())

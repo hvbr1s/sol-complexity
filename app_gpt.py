@@ -4,7 +4,7 @@ import asyncio
 import shutil
 from dotenv import main
 from openai import AsyncOpenAI
-from system.prompts import MAP, SIMPLIFY, ANALYZE
+from system.prompts import MAP, SIMPLIFY, ANALYZE, FIND_BUGS
 import aiofiles
 import subprocess
 
@@ -19,10 +19,6 @@ def read_solidity_files(folder_path):
         if filename.endswith('.sol'):
             with open(os.path.join(folder_path, filename), 'r') as file:
                 content = file.read()
-                # Remove single-line comments and surrounding whitespace
-                content = re.sub(r'\s*//.*?\n', '\n', content)
-                # Remove multi-line comments and surrounding whitespace
-                content = re.sub(r'\s*/\*.*?\*/\s*', '', content, flags=re.DOTALL)
                 context += f"Contract number {file_number}: {filename}\n\n"
                 context += content.strip()  # Remove leading/trailing whitespace
                 context += "\n"
@@ -82,7 +78,7 @@ async def generate_mermaid(contract_analysis):
             {"role": "system", "content":MAP},
             {"role": "user", "content": contract_analysis}
             ],
-            timeout= 30,
+            timeout= 60,
         )
     except Exception as e:
         print(f"Failed to generate Mermaid code: {e}")
@@ -154,55 +150,68 @@ async def clean_mermaid_code(mermaid_code):
     # Remove any leading/trailing whitespace and backticks
     cleaned_code = mermaid_code.strip().strip('`')
     
-    # Ensure the code starts with 'graph TD'
-    if not cleaned_code.startswith('graph TD'):
-        cleaned_code = 'graph TD\n' + cleaned_code
+    # Ensure the code starts with 'sequenceDiagram'
+    if not cleaned_code.startswith('sequenceDiagram'):
+        cleaned_code = 'sequenceDiagram\n' + cleaned_code
     
     # Remove any lines that contain complex type definitions
     cleaned_lines = [line for line in cleaned_code.split('\n') if '[]' not in line]
     
     return '\n'.join(cleaned_lines)
 
+async def find_bugs(contract_analysis):
+    print("Looking for bugs 🪲👀")
+    try:
+        response = await openai_client.chat.completions.create(
+            temperature=0.0,
+            model=openai_model_test,
+            messages=[
+            {"role": "system", "content":FIND_BUGS},
+            {"role": "user", "content": contract_analysis}
+            ],
+            timeout= 100,
+        )
+    except Exception as e:
+        print(f"Failed to generate security report: {e}")
+        return("Snap! ailed to generate security report!")
+    return response.choices[0].message.content
+
 async def main():
-    # First call: Analyze contracts
-    contract_analysis = await analyze_contracts(solidity_context)
-    print("Done analyzing your files 🫡🫡")
-    print(contract_analysis)
+                
+    # Prepare code summary
+    print('Writing summary 📜')
+    summary = await simplify_mermaid(solidity_context)
     
-    # Second call: Generate initial Mermaid graph
-    initial_mermaid = await generate_mermaid(contract_analysis)
-    
-    if initial_mermaid:
-        print("Initial Mermaid Code:")
-        print(f"{initial_mermaid}\n\n")
+    if summary:
+        print("Summary: ")
+        print(f"{summary}\n\n")
+        
+                    
+        # Define the full path for the file
+        output_dir = "./output"
+        filename_mermaid = os.path.join(output_dir, "summary.md")
+        
+        # Write the content to the file in Markdown format
+        with open(filename_mermaid, 'w') as f:
+            f.write(summary)
+        
+        print(f"Summary saved to {filename_mermaid}")
+        
+        # Second call: Generate initial Mermaid graph
+        initial_mermaid = await generate_mermaid(summary)
         
         # Save and generate image for initial Mermaid code
         await save_mermaid_code(initial_mermaid, 'complete_mermaid.mmd')
         await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png')
         
-        # Simplify the Mermaid code
-        print('Writing an explanation 📜')
-        simplified_mermaid = await simplify_mermaid(initial_mermaid)
+        bugs  = await find_bugs(solidity_context)
+        filename_bug = os.path.join(output_dir, "bug_report.md")
+        with open(filename_bug, 'w') as fil:
+            fil.write(bugs)
+        print(filename_bug)
         
-        if simplified_mermaid:
-            print("Simplified Mermaid Code:")
-            print(f"{simplified_mermaid}\n\n")
-            
-                        
-            # Define the full path for the file
-            output_dir = "./output"
-            filename = os.path.join(output_dir, "simplified_mermaid.md")
-            
-            # Write the content to the file in Markdown format
-            with open(filename, 'w') as f:
-                f.write(simplified_mermaid)
-            
-            print(f"Contract summary saved to {filename}")
-            
-        else:
-            print("Failed to simplify the Mermaid code.")
     else:
-        print("Failed to generate initial Mermaid code.")
+        print("Failed to simplify the Mermaid code.")
     
     # Move all generated files to the output directory
     move_files_to_output()

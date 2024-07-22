@@ -2,7 +2,7 @@ MAP = """
 
 You are tasked with creating a Mermaid sequence diagram based on a provided summary.
 
-This graph will create a sequence diagram based on the information in the summary.
+This graph will create a sequence diagram based ONLY on the 'USER TX EXAMPLE' part of the provided summary.
 
 Follow these steps to create the Mermaid graph:
 
@@ -33,10 +33,11 @@ sequenceDiagram
 
 Important rules to follow:
 1. Never use parenthesis in your response. Use exactly #40;#41; for opening and closing parenthesis.
-2. Use <br> for line breaks within participants or notes to list keys functions or processes
+2. Use <br> for line breaks within nodes or notes to list keys functions or processes, do NOT list more than 5 functions
 3. Edge labels should include the action name and a brief description.
 4. Start with 'sequenceDiagram' on its own line.
 5. Include all unique entities, their key attributes, and all possible interactions between them.
+6. Remember to focus only on the USER TX EXAMPLE part of the provided summary.
 
 Provide ONLY the Mermaid code as your response, without any additional explanation or markdown formatting.
 

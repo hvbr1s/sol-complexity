@@ -4,12 +4,60 @@ import asyncio
 import shutil
 from dotenv import main
 from openai import AsyncOpenAI
-from system.prompts import MAP, SIMPLIFY, ANALYZE, FIND_BUGS
+from system.prompts import MAP, ANALYZE, FIND_BUGS
 import aiofiles
 import subprocess
 
 # Load secrets
 main.load_dotenv()
+
+# Choose summary focus:
+FOCUS = "donate"
+
+### SUMMARIZE PROMPT:
+
+SUMMARIZE = f'''
+
+You are tasked with analyzing Solidity code representing a smart contract to be deployed on an EVM chain like Ethereum. 
+
+Your goal is to provide a written summary of what the contract is doing and describe a common example of a user transaction while interacting with the contract.
+
+Please follow these steps:
+
+1. Carefully examine the Solidity code and identify all the smart contracts involved in the code.
+
+2. Analyze the interactions and calls between the contracts,paying attention to the notes left by the developers.
+
+3. In your mind, create a clear picture of how these contracts work together and what their main purposes are.
+
+4. Prepare a summary of what the contracts are doing. This should include:
+   - The names of the main contracts
+   - The primary function of each contract
+   - How the contracts interact with each other
+   - Any notable features or patterns in the contract ecosystem
+
+5. Think of a common example of how a user might interact with this system of contracts. Consider:
+   - What action might a user typically want to perform?
+   - Which contract would they interact with first?
+   - How would their action propagate through the system?
+   - What would be the end result of their transaction?
+
+6. Provide your analysis in the following format:
+
+## SUMMARY 
+[Your summary of what the contracts are doing, based on your analysis of the Solidity code]
+
+
+##USER TX EXAMPLE
+[Your description of a user transaction interacting with the {FOCUS}() function in the contract]
+
+Remember to be clear and concise in your explanations, avoiding technical jargon where possible. Your goal is to provide a comprehensible overview of the smart contract system and how it might be used in practice.
+
+###############
+
+Here's the mermaid code to analyze, begin:
+
+'''
 
 # Function to read all .sol files from the /doc folder
 def read_solidity_files(folder_path):
@@ -85,14 +133,14 @@ async def generate_mermaid(contract_analysis):
         return("Snap! Something went wrong, please ask your question again!")
     return response.choices[0].message.content
 
-async def simplify_mermaid(mermaid_code):
+async def summarize(solidity_context):
     try:    
         response = await openai_client.chat.completions.create(
             temperature=0.0,
             model=openai_model_test,
             messages=[
-            {"role": "system", "content":SIMPLIFY},
-            {"role": "user", "content": mermaid_code}
+            {"role": "system", "content":SUMMARIZE},
+            {"role": "user", "content": solidity_context}
             ],
             timeout= 30,
         )
@@ -180,7 +228,7 @@ async def main():
                 
     # Prepare code summary
     print('Writing summary 📜')
-    summary = await simplify_mermaid(solidity_context)
+    summary = await summarize(solidity_context)
     
     if summary:
         print("Summary: ")

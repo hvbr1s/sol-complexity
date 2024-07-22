@@ -150,9 +150,9 @@ async def clean_mermaid_code(mermaid_code):
     # Remove any leading/trailing whitespace and backticks
     cleaned_code = mermaid_code.strip().strip('`')
     
-    # Ensure the code starts with 'graph TD'
-    if not cleaned_code.startswith('graph TD'):
-        cleaned_code = 'graph TD\n' + cleaned_code
+    # Ensure the code starts with 'sequenceDiagram'
+    if not cleaned_code.startswith('sequenceDiagram'):
+        cleaned_code = 'sequenceDiagram\n' + cleaned_code
     
     # Remove any lines that contain complex type definitions
     cleaned_lines = [line for line in cleaned_code.split('\n') if '[]' not in line]
@@ -182,23 +182,15 @@ async def main():
     print("Done analyzing your files 🫡🫡")
     print(contract_analysis)
     
-    # Second call: Generate initial Mermaid graph
-    initial_mermaid = await generate_mermaid(contract_analysis)
     
-    if initial_mermaid:
-        print("Initial Mermaid Code:")
-        print(f"{initial_mermaid}\n\n")
-        
-        # Save and generate image for initial Mermaid code
-        await save_mermaid_code(initial_mermaid, 'complete_mermaid.mmd')
-        await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png')
-        
+    if contract_analysis:
+                
         # Provide code summary
         print('Writing an explanation 📜')
         summary = await simplify_mermaid(solidity_context)
         
         if summary:
-            print("Simplified Mermaid Code:")
+            print("Summary: ")
             print(f"{summary}\n\n")
             
                         
@@ -211,6 +203,13 @@ async def main():
                 f.write(summary)
             
             print(f"Summary saved to {filename_mermaid}")
+            
+            # Second call: Generate initial Mermaid graph
+            initial_mermaid = await generate_mermaid(summary)
+            
+            # Save and generate image for initial Mermaid code
+            await save_mermaid_code(initial_mermaid, 'complete_mermaid.mmd')
+            await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png')
             
             bugs  = await find_bugs(solidity_context)
             filename_bug = os.path.join(output_dir, "bug_report.md")

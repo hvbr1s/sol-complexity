@@ -12,7 +12,7 @@ import subprocess
 main.load_dotenv()
 
 # Ask the user for input
-FOCUS = input("\n👋👋\n Hello, which function in the contract should we focus on?\n Please provide only ONE function per run and WITHOUT the '()'\n For example: swap\n\n Your answer: ").strip().lower()
+FOCUS = input("👋👋\nHello, which function in the contract should we focus on?\nPlease provide only ONE function per run and WITHOUT the '()'\nFor example: swapTokens\n\nYour answer: ").strip()
 print(f"Thanks, let's take a look at {FOCUS}() 😊")
 
 # Function to read all .sol files from the /doc folder

@@ -181,4 +181,3 @@ When analyzing Solidity code:
 Remember, your goal is to provide a comprehensive security analysis that not only identifies potential issues but also educates the user on secure smart contract development practices. Be thorough, precise, and always ready to explain your reasoning in depth if asked.
 
 '''
-

@@ -1,5 +1,4 @@
 #### User guide on macOS:
-
 1. In your working folder, create `venv` and activate it.
 2. Run `pip install -r requirements.txt` in your venv.
 3. Run `npm install -g mermaid.cli`

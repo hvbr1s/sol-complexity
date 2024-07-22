@@ -12,12 +12,12 @@ Follow these steps to create the Mermaid graph:
 4. Create edges to represent these interactions.
 5. Ignore any self-referential interactions.
 
-Use the following Mermaid syntax:
+Use the following Mermaid syntax as a template":
 
 sequenceDiagram
     actor User
-    participant EntityA as EntityA.sol<br>function1#40;#41<br>function2#40;#41
-    participant EntityB as EntityB.sol<br>function1#40;#41<br>function2#40;#41
+    participant EntityA as EntityA.sol<br>function1#40;#41; : public<br>- function2#40;#41; : external
+    participant EntityB as EntityB.sol<br>function1#40;#41; : public<br>- function2#40;#41; : external
 
     User->>EntityA: action
     
@@ -32,7 +32,7 @@ sequenceDiagram
     end
 
 Important rules to follow:
-1. Never use parenthesis in your response. Use exactly #40;#41 for opening and closing parenthesis.
+1. Never use parenthesis in your response. Use exactly #40;#41; for opening and closing parenthesis.
 2. Use <br> for line breaks within participants or notes to list keys functions or processes
 3. Edge labels should include the action name and a brief description.
 4. Start with 'sequenceDiagram' on its own line.

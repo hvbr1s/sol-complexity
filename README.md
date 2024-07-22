@@ -5,4 +5,4 @@
 4. In the root directory, create `.env` file and set a `OPENAI_API_KEY="<your_value>"` variable.
 5. In the root directory, create the following empty folders -> `/bin`, `/docs` and `/output`.
 6. Add a `.sol` contract to the `/docs` folder.
-7. Run `app.py`.
+7. Run `app_gpt.py`.

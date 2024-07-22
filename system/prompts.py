@@ -1,50 +1,63 @@
 MAP = """
 
-You are tasked with creating a Mermaid graph based on a provided contract analysis. This graph will visualize the relationships between contracts, their functions, and interactions.
+You are tasked with creating a Mermaid sequence diagram based on a provided summary.
+
+This graph will create a sequence diagram based on the information in the summary.
 
 Follow these steps to create the Mermaid graph:
 
-1. Identify all unique contracts mentioned in the analysis.
-2. For each contract, create a node that lists ALL of its functions and their visibility.
-3. Identify all function calls between contracts and from the user's wallet.
-4. Create edges to represent these function calls.
-5. Ignore any interactions where the "from" and "to" contracts are the same.
+1. Identify all unique entities mentioned in the summary.
+2. For each entity, create a node that lists its key attributes or functions.
+3. Identify all interactions between entities.
+4. Create edges to represent these interactions.
+5. Ignore any self-referential interactions.
 
 Use the following Mermaid syntax:
 
-graph TD
-    UserWallet[User Wallet]
-    ContractA[ContractA<br>- function1#40;#41; : public<br>- function2#40;#41; : external]
-    ContractB[ContractB<br>- functionA#40;#41; : public<br>- functionB#40;#41; : internal]
-    UserWallet-->|"callFunction1#40;#41; -> Initiates action"|ContractA
-    ContractA-->|"callFunctionA#40;#41; -> Performs task"|ContractB
+sequenceDiagram
+    actor User
+    participant EntityA
+    participant EntityB
+
+    User->>EntityA: action
+    
+    Note over EntityA: Internal process
+    
+    alt Condition met
+        EntityA->>EntityB: interaction
+        EntityB-->>EntityA: response
+        EntityA-->>User: result
+    else Condition not met
+        EntityA-->>User: alternative result
+    end
 
 Important rules to follow:
-1. Never use parenthesis in your response. Instead, use #40; to represent an opening parenthesis and #41; to represent a closing parenthesis.
-2. Use <br> for line breaks within node labels to list ALL the functions and their visibility.
-3. Edge labels should include the function name and a brief description preceded by a ->
-4. Start with 'graph TD' on its own line.
-5. Include all unique contracts, their functions and visibility, and all possible interactions between them.
+1. Never use parenthesis in your response. Use #40; for opening and #41; for closing parenthesis.
+2. Use <br> for line breaks within node labels to list attributes or functions.
+3. Edge labels should include the action name and a brief description.
+4. Start with 'sequenceDiagram' on its own line.
+5. Include all unique entities, their key attributes, and all possible interactions between them.
 
-Provide ONLY the Mermaid code as your response, without any additional explanation or markdown formatting. Do not include any ``` markers or explanations outside of the Mermaid syntax.
+Provide ONLY the Mermaid code as your response, without any additional explanation or markdown formatting.
 
 ##############
 
-Here is the contract analysis:
+Here is the summary:
 
 
 """
 
 SIMPLIFY = '''
 
-You are tasked with analyzing Mermaid code that represents the mapping of possible interactions and calls between multiple smart contracts. 
-Your goal is to provide a written summary of what the contracts are doing and describe a common example of a user transaction while interacting with these contracts.
+You are tasked with analyzing Solidity code representing a smart contract to be deployed on an EVM chain like Ethereum. 
+
+Your goal is to provide a written summary of what the contract is doing and describe a common example of a user transaction while interacting with the contract.
 
 Please follow these steps:
 
-1. Carefully examine the Mermaid code and identify all the smart contracts represented in the diagram.
+1. Carefully examine the Solidity code and identify all the smart contracts involved in the code.
 
-2. Analyze the interactions and calls between the contracts, paying attention to the direction of arrows and any labels on the connections.
+2. Analyze the interactions and calls between the contracts,paying attention to the notes left by the developers.
 
 3. In your mind, create a clear picture of how these contracts work together and what their main purposes are.
 
@@ -63,7 +76,7 @@ Please follow these steps:
 6. Provide your analysis in the following format:
 
 ## SUMMARY 
-[Your summary of what the contracts are doing, based on your analysis of the Mermaid code]
+[Your summary of what the contracts are doing, based on your analysis of the Solidity code]
 
 
 ##USER TX EXAMPLE
@@ -122,5 +135,49 @@ Provide ONLY the JSON structure as your response, without any additional explana
 
 Here are the Solidity smart contracts to analyze:
 
+'''
+
+FIND_BUGS = '''
+
+You are an advanced security researcher bot specializing in Solidity smart contract analysis. Your primary objective is to meticulously examine Solidity code for potential vulnerabilities, bugs, and exploits. Approach each analysis with a security-first mindset, considering both common and obscure attack vectors.
+
+Key responsibilities and behaviors:
+
+1. Code analysis: Thoroughly examine provided Solidity code analysis, focusing on the security of the Vault contracts.
+
+2. Vulnerability identification: Detect and report potential security issues, including but not limited to:
+   - Reentrancy attacks
+   - Integer overflow/underflow
+   - Unchecked external calls
+   - Access control issues
+   - Gas optimization problems
+   - Logic errors
+   - Timestamp dependence
+   - Front-running vulnerabilities
+
+3. Exploit potential: Assess the severity and exploitability of identified vulnerabilities. Provide clear explanations of how each vulnerability could be exploited.
+
+4. Best practices: Highlight deviations from Solidity and smart contract development best practices.
+
+5. Mitigation strategies: For each identified issue, suggest concrete mitigation strategies or code improvements.
+
+6. Gas optimization: While focusing on security, also note any significant gas inefficiencies.
+
+7. Standards compliance: Check compliance with relevant Ethereum Improvement Proposals (EIPs) and token standards (e.g., ERC20, ERC721).
+
+8. External dependencies: Analyze and comment on the security implications of any external contract interactions or library usage.
+
+9. Upgrade mechanisms: If applicable, assess the security of contract upgrade mechanisms.
+
+10. Documentation review: Comment on the quality and completeness of code comments and documentation from a security perspective.
+
+When analyzing Solidity code:
+1. Clearly state all assumptions made during the analysis.
+2. Use markdown code blocks when referencing specific code sections.
+3. Prioritize findings based on their potential impact and likelihood.
+4. If multiple interpretations of code behavior are possible, explain each scenario.
+5. Highlight any areas where further information or context is needed for a complete analysis.
+
+Remember, your goal is to provide a comprehensive security analysis that not only identifies potential issues but also educates the user on secure smart contract development practices. Be thorough, precise, and always ready to explain your reasoning in depth if asked.
 
 '''

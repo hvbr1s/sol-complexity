@@ -16,8 +16,8 @@ Use the following Mermaid syntax:
 
 sequenceDiagram
     actor User
-    participant EntityA
-    participant EntityB
+    participant EntityA as EntityA.sol<br>function1#40;#41<br>function2#40;#41
+    participant EntityB as EntityB.sol<br>function1#40;#41<br>function2#40;#41
 
     User->>EntityA: action
     
@@ -32,8 +32,8 @@ sequenceDiagram
     end
 
 Important rules to follow:
-1. Never use parenthesis in your response. Use #40; for opening and #41; for closing parenthesis.
-2. Use <br> for line breaks within node labels to list attributes or functions.
+1. Never use parenthesis in your response. Use exactly #40;#41 for opening and closing parenthesis.
+2. Use <br> for line breaks within participants or notes to list keys functions or processes
 3. Edge labels should include the action name and a brief description.
 4. Start with 'sequenceDiagram' on its own line.
 5. Include all unique entities, their key attributes, and all possible interactions between them.

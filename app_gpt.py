@@ -11,8 +11,9 @@ import subprocess
 # Load secrets
 main.load_dotenv()
 
-# Choose summary focus and adapt prompt:
-FOCUS = "_swapWithPools"
+# Ask the user for input
+FOCUS = input("\n👋👋\n Hello, which function in the contract should we focus on?\n Please provide only ONE function per run and WITHOUT the '()'\n For example: swap\n\n Your answer: ").strip().lower()
+print(f"Thanks, let's take a look at {FOCUS}() 😊")
 
 # Function to read all .sol files from the /doc folder
 def read_solidity_files(folder_path):
@@ -52,24 +53,24 @@ openai_client = AsyncOpenAI(api_key=openai_key)
 openai_model_prod = "gpt-4-turbo"
 openai_model_test = "gpt-4o"
 
-async def analyze_contracts(solidity_context):
-    print("Analyzing your files, sit tight 🔧🔧")
-    try:     
-        response = await openai_client.chat.completions.create(
-            temperature=0.0,
-            model=openai_model_test,
-            messages=[
-            {"role": "system", "content":ANALYZE},
-            {"role": "user", "content": solidity_context}
-            ],
-            timeout= 100,
-            response_format={ "type": "json_object" }
-        )
-    except Exception as e:
-        print(f"Failed to analyze the code: {e}")
-        return("Snap! Something went wrong, please ask your question again!")
+# async def analyze_contracts(solidity_context): 
+#     print("Analyzing your files, sit tight 🔧🔧")
+#     try:     
+#         response = await openai_client.chat.completions.create(
+#             temperature=0.0,
+#             model=openai_model_test,
+#             messages=[
+#             {"role": "system", "content":ANALYZE},
+#             {"role": "user", "content": solidity_context}
+#             ],
+#             timeout= 100,
+#             response_format={ "type": "json_object" }
+#         )
+#     except Exception as e:
+#         print(f"Failed to analyze the code: {e}")
+#         return("Snap! Something went wrong, please ask your question again!")
     
-    return response.choices[0].message.content
+#     return response.choices[0].message.content
 
 async def generate_mermaid(contract_analysis):
     print("Generating Mermaid code 🧜‍♀️🧜‍♀️")
@@ -188,7 +189,6 @@ async def main():
     if summary:
         print("Summary: ")
         print(f"{summary}\n\n")
-        
                     
         # Define the full path for the file
         output_dir = "./output"
@@ -218,6 +218,6 @@ async def main():
     
     # Move all generated files to the output directory
     move_files_to_output()
-
+    
 # Run the async main function
 asyncio.run(main())

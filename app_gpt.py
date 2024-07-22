@@ -177,50 +177,41 @@ async def find_bugs(contract_analysis):
     return response.choices[0].message.content
 
 async def main():
-    # First call: Analyze contracts
-    contract_analysis = await analyze_contracts(solidity_context)
-    print("Done analyzing your files 🫡🫡")
-    print(contract_analysis)
-    
-    
-    if contract_analysis:
                 
-        # Provide code summary
-        print('Writing an explanation 📜')
-        summary = await simplify_mermaid(solidity_context)
+    # Prepare code summary
+    print('Writing summary 📜')
+    summary = await simplify_mermaid(solidity_context)
+    
+    if summary:
+        print("Summary: ")
+        print(f"{summary}\n\n")
         
-        if summary:
-            print("Summary: ")
-            print(f"{summary}\n\n")
-            
-                        
-            # Define the full path for the file
-            output_dir = "./output"
-            filename_mermaid = os.path.join(output_dir, "summary.md")
-            
-            # Write the content to the file in Markdown format
-            with open(filename_mermaid, 'w') as f:
-                f.write(summary)
-            
-            print(f"Summary saved to {filename_mermaid}")
-            
-            # Second call: Generate initial Mermaid graph
-            initial_mermaid = await generate_mermaid(summary)
-            
-            # Save and generate image for initial Mermaid code
-            await save_mermaid_code(initial_mermaid, 'complete_mermaid.mmd')
-            await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png')
-            
-            bugs  = await find_bugs(solidity_context)
-            filename_bug = os.path.join(output_dir, "bug_report.md")
-            with open(filename_bug, 'w') as fil:
-                fil.write(bugs)
-            print(filename_bug)
-            
-        else:
-            print("Failed to simplify the Mermaid code.")
+                    
+        # Define the full path for the file
+        output_dir = "./output"
+        filename_mermaid = os.path.join(output_dir, "summary.md")
+        
+        # Write the content to the file in Markdown format
+        with open(filename_mermaid, 'w') as f:
+            f.write(summary)
+        
+        print(f"Summary saved to {filename_mermaid}")
+        
+        # Second call: Generate initial Mermaid graph
+        initial_mermaid = await generate_mermaid(summary)
+        
+        # Save and generate image for initial Mermaid code
+        await save_mermaid_code(initial_mermaid, 'complete_mermaid.mmd')
+        await generate_mermaid_image(initial_mermaid, 'complete_mermaid_graph.png')
+        
+        bugs  = await find_bugs(solidity_context)
+        filename_bug = os.path.join(output_dir, "bug_report.md")
+        with open(filename_bug, 'w') as fil:
+            fil.write(bugs)
+        print(filename_bug)
+        
     else:
-        print("Failed to generate initial Mermaid code.")
+        print("Failed to simplify the Mermaid code.")
     
     # Move all generated files to the output directory
     move_files_to_output()

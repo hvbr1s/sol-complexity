@@ -15,7 +15,7 @@ load_dotenv()
 openai_key = os.environ['OPENAI_API_KEY']
 openai_client = AsyncOpenAI(api_key=openai_key)
 openai_model_prod = "gpt-4-turbo"
-openai_model_test = "gpt-4o"
+openai_model_test = "gpt-4o-2024-08-06"
 
 # Function to run CLOC on 'docs' directories and get Rust file information
 def get_rust_files_info():
@@ -45,15 +45,14 @@ async def get_complexity_score(file_path, file_info):
                 {"role": "system", "content": await preprare_prompt(file_path, file_info['code_lines'], file_info['comment_lines'], file_info['blank_lines'])},
                 {"role": "user", "content": file_path}
             ],
+            response_format= { "type": "json_object" },
             timeout=60,
         )
         content = response.choices[0].message.content
-        print(content)
-        
-        # Extract the score using regex
-        match = re.search(r'Complexity Score:\s*(\d+)', content)
-        if match:
-            score = int(match.group(1))
+        parsed_content = json.loads(content)
+        score = parsed_content["complexity"]
+        print(score)
+        if score:
             print(f'Difficulty score for {file_path} is {score}')
             return score
         else:
@@ -78,15 +77,14 @@ async def analyze_rust_programs():
     
     return results
 
-# Function to save results to a text file
+# Function to save results to a json file
 async def save_results(results, output_file):
     async with aiofiles.open(output_file, 'w') as f:
-        await f.write("Complexity Report:\n\n")
-        for result in results:
-            await f.write(f"File: {result['file']}, Complexity Score: {result['score']}\n")
+        json_data = {"complexity_report": results}
+        await f.write(json.dumps(json_data, indent=2))
 
 async def main():
-    output_file = './output/complexity_report.txt'
+    output_file = './output/complexity_report.json'
     
     print("Analyzing Rust programs...")
     results = await analyze_rust_programs()
@@ -95,6 +93,7 @@ async def main():
     await save_results(results, output_file)
     
     print(f"Analysis complete. Results saved to {output_file}")
+
 
 # Run the async main function
 if __name__ == "__main__":

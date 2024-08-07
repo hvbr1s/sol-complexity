@@ -65,13 +65,13 @@ async def get_complexity_score(file_path, file_info):
         rationale = parsed_content["rationale"]
         
         if score and rationale:
-            print (f'Program {file_path} got assigned a complexity scrore of {score} because: {rationale}')
+            print (f'Program {file_path} got assigned a complexity score of {score}. {rationale}')
             return score, rationale, code_lines
         else:
-            print(f"Couldn't extract complexity score for {file_path}")
+            print(f"Couldn't generate complexity info for {file_path}")
             return None
     except Exception as e:
-        print(f"Failed to generate complexity score for {file_path}: {e}")
+        print(f"Failed to generate complexity info for {file_path}: {e}")
         return None
 
 # Function to analyze all Rust files
@@ -107,6 +107,7 @@ def calculate_summary(results):
 
 # Function to save summary to a txt file
 async def save_summary(total_cloc, avg_complexity, median_complexity, output_file):
+    
     summary = f"""Project Summary:
 Total CLOC: {total_cloc}
 Average Complexity Score: {avg_complexity:.2f}

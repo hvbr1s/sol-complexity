@@ -8,6 +8,7 @@ You will be provided with the following information for each Rust file:
 - code_lines: {code_lines}
 - comment_lines: {comment_lines}
 - blank_lines: {blank_lines}
+- file_content
 
 When presented with this information about a Solana program written in Rust, think in your head about the following:
 

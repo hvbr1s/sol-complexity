@@ -1,6 +1,7 @@
 import os
 import json
 import asyncio
+import statistics
 import aiofiles
 import subprocess
 from dotenv import load_dotenv
@@ -13,8 +14,7 @@ load_dotenv()
 # Set up OpenAI
 openai_key = os.environ['OPENAI_API_KEY']
 openai_client = AsyncOpenAI(api_key=openai_key)
-openai_model_prod = "gpt-4-turbo"
-openai_model_test = "gpt-4o-2024-08-06"
+openai_model_prod = "gpt-4o-2024-08-06"
 
 # Function to run CLOC on 'docs' directories and get Rust file information
 async def get_rust_files_info():
@@ -47,12 +47,13 @@ async def get_rust_files_info():
 async def get_complexity_score(file_path, file_info):
     try:
         rust_program = file_info['file_content']
+        code_lines = str(file_info['code_lines'])
 
         response = await openai_client.chat.completions.create(
             temperature=0.0,
-            model=openai_model_test,
+            model=openai_model_prod,
             messages=[
-                {"role": "system", "content": await preprare_prompt(file_path, file_info['code_lines'], file_info['comment_lines'], file_info['blank_lines'])},
+                {"role": "system", "content": await preprare_prompt(file_path, code_lines , file_info['comment_lines'], file_info['blank_lines'])},
                 {"role": "user", "content": rust_program}
             ],
             response_format= { "type": "json_object" },
@@ -64,8 +65,8 @@ async def get_complexity_score(file_path, file_info):
         rationale = parsed_content["rationale"]
         
         if score and rationale:
-            print (f'Program {file_path} got assigned a complexity scrore of {score} because: {rationale}')
-            return score, rationale
+            print (f'Program {file_path} got assigned a complexity score of {score}. {rationale}')
+            return score, rationale, code_lines
         else:
             print(f"Couldn't extract complexity score for {file_path}")
             return None
@@ -79,12 +80,13 @@ async def analyze_rust_programs():
     results = []
     
     for file_path, file_info in rust_files.items():
-        score, rationale = await get_complexity_score(file_path, file_info)
+        score, rationale, code_lines = await get_complexity_score(file_path, file_info)
         if score is not None:
             results.append({
                 'file': file_path,
                 'score': score,
-                'rationale': rationale
+                'rationale': rationale,
+                'cloc': code_lines
             })
     
     return results
@@ -95,16 +97,42 @@ async def save_results(results, output_file):
         json_data = {"complexity_report": results}
         await f.write(json.dumps(json_data, indent=2))
 
+# Function to calculate summary statistics
+def calculate_summary(results):
+    total_cloc = sum(int(result['cloc']) for result in results)
+    complexity_scores = [float(result['score']) for result in results]
+    avg_complexity = statistics.mean(complexity_scores)
+    median_complexity = statistics.median(complexity_scores)
+    return total_cloc, avg_complexity, median_complexity
+
+# Function to save summary to a txt file
+async def save_summary(total_cloc, avg_complexity, median_complexity, output_file):
+    summary = f"""Project Summary:
+Total CLOC: {total_cloc}
+Average Complexity Score: {avg_complexity:.2f}
+Median Complexity Score: {median_complexity:.2f}
+"""
+    async with aiofiles.open(output_file, 'w') as f:
+        await f.write(summary)
+
 async def main():
-    output_file = './output/complexity_report.json'
+    complexity_report_file = './output/complexity_report.json'
+    summary_file = './output/project_summary.txt'
     
     print("Analyzing Rust programs...")
     results = await analyze_rust_programs()
     
-    print("Saving results...")
-    await save_results(results, output_file)
+    print("Saving complexity report...")
+    await save_results(results, complexity_report_file)
     
-    print(f"Analysis complete. Results saved to {output_file}")
+    print("Calculating summary statistics...")
+    total_cloc, avg_complexity, median_complexity = calculate_summary(results)
+    
+    print("Saving project summary...")
+    await save_summary(total_cloc, avg_complexity, median_complexity, summary_file)
+    
+    print(f"Analysis complete. Complexity report saved to {complexity_report_file}")
+    print(f"Project summary saved to {summary_file}")
 
 # Run the async main function
 if __name__ == "__main__":

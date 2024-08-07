@@ -20,7 +20,6 @@ openai_model_test = "gpt-4o-2024-08-06"
 async def get_rust_files_info():
     result = subprocess.run(['cloc', './docs', '--json', '--include-lang=Rust', '--by-file'], capture_output=True, text=True)
     cloc_output = json.loads(result.stdout)
-    print(cloc_output)
     
     rust_files = {}
     for file_path, file_info in cloc_output.items():
@@ -48,7 +47,7 @@ async def get_rust_files_info():
 async def get_complexity_score(file_path, file_info):
     try:
         rust_program = file_info['file_content']
-        print(rust_program)
+
         response = await openai_client.chat.completions.create(
             temperature=0.0,
             model=openai_model_test,
@@ -62,11 +61,11 @@ async def get_complexity_score(file_path, file_info):
         content = response.choices[0].message.content
         parsed_content = json.loads(content)
         score = parsed_content["complexity"]
-        print(score)
+        rationale = parsed_content["rationale"]
         
-        if score:
-            print(f'Difficulty score for {file_path} is {score}')
-            return score
+        if score and rationale:
+            print (f'Program {file_path} got assigned a complexity scrore of {score} because: {rationale}')
+            return score, rationale
         else:
             print(f"Couldn't extract complexity score for {file_path}")
             return None
@@ -80,11 +79,12 @@ async def analyze_rust_programs():
     results = []
     
     for file_path, file_info in rust_files.items():
-        score = await get_complexity_score(file_path, file_info)
+        score, rationale = await get_complexity_score(file_path, file_info)
         if score is not None:
             results.append({
                 'file': file_path,
-                'score': score
+                'score': score,
+                'rationale': rationale
             })
     
     return results

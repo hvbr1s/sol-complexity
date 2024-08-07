@@ -8,6 +8,7 @@ You will be provided with the following information for each Rust file:
 - code_lines: {code_lines}
 - comment_lines: {comment_lines}
 - blank_lines: {blank_lines}
+- file_content
 
 When presented with this information about a Solana program written in Rust, think in your head about the following:
 
@@ -21,10 +22,10 @@ When presented with this information about a Solana program written in Rust, thi
    5: Moderate complexity, requires careful review of Solana-specific constructs
    10: Extremely complex Solana program, high risk, extensive audit required
 
-YOUR RESPONSE MUST CONSIST OF ONLY THE ASSIGNED COMPLEXITY SCORE (1-10) AND NOTHING ELSE. DO NOT PROVIDE ANY EXPLANATION OR ADDITIONAL INFORMATION.
+YOUR RESPONSE MUST CONSIST OF A JSON FILE WITH THE ASSIGNED COMPLEXITY SCORE (1-10) AND A SHORT ONE-SENTENCE EXPLANATION OF WHY YOU GAVE THAT SCORE AND NOTHING ELSE. DO NOT PROVIDE ANY ADDITIONAL INFORMATION.
 
-Expected output example 1: Complexity Score: 5
-Expected output example 2: Complexity Score: 9
+Expected output example 1: {{"complexity":"1", "rationale":"This is a low complexity contract because..."}}
+Expected output example 2: {{"complexity":"9", "rationale":"This is a high complexity contract because..."}}
 
         '''
         return ANALYZER

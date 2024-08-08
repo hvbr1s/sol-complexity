@@ -1,5 +1,6 @@
 import os
 import json
+import math
 import asyncio
 import statistics
 import aiofiles
@@ -61,15 +62,18 @@ async def get_complexity_score(file_path, file_info):
         )
         content = response.choices[0].message.content
         parsed_content = json.loads(content)
-        score = parsed_content["complexity"]
-        rationale = parsed_content["rationale"]
+        score = parsed_content.get("complexity")
+        rationale = parsed_content.get("rationale")
         
-        if score and rationale:
-            print (f'Program {file_path} got assigned a complexity score of {score}. {rationale}')
+        if score is not None and rationale is not None:
+            print(f'Program {file_path} got assigned a complexity score of {score}. {rationale}')
             return score, rationale, code_lines
         else:
-            print(f"Couldn't generate complexity info for {file_path}")
+            print(f"Couldn't generate complexity info for {file_path}: Missing 'complexity' or 'rationale' in API response")
             return None
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse JSON response for {file_path}: {e}")
+        return None
     except Exception as e:
         print(f"Failed to generate complexity info for {file_path}: {e}")
         return None
@@ -96,9 +100,38 @@ async def save_results(results, output_file):
     async with aiofiles.open(output_file, 'w') as f:
         json_data = {"complexity_report": results}
         await f.write(json.dumps(json_data, indent=2))
+        
+async def calculate_adjusted_time_estimate(total_loc, avg_complexity):
+    '''
+    1. We start with the base estimate of 1 week per 750 lines of code.
+    2. We then apply a complexity multiplier based on the average complexity score:
+
+        -For low complexity (1-3), we reduce the estimate by 20%.
+        -For medium complexity (4-7), we apply a linear adjustment, increasing or decreasing the estimate by up to 20%.
+        -For high complexity (8-10), we increase the estimate more significantly, up to 110% more for a complexity of 10.
+
+    3. We multiply the base estimate by this complexity multiplier.
+    4. Finally, we round up to the nearest whole week.
+    
+    '''
+    
+    
+    base_estimate_weeks = total_loc / 750
+    print(f'Base estimate weeks: {base_estimate_weeks}')
+    
+    if avg_complexity <= 3:
+        complexity_multiplier = 0.8  
+    elif 3 < avg_complexity <= 7:
+        complexity_multiplier = 1 + (avg_complexity - 5) * 0.1  
+    else:
+        complexity_multiplier = 1.5 + (avg_complexity - 7) * 0.2  
+    
+    adjusted_estimate_weeks = base_estimate_weeks * complexity_multiplier
+    
+    return math.ceil(adjusted_estimate_weeks)
 
 # Function to calculate summary statistics
-def calculate_summary(results):
+async def calculate_summary(results):
     total_cloc = sum(int(result['cloc']) for result in results)
     complexity_scores = [float(result['score']) for result in results]
     avg_complexity = statistics.mean(complexity_scores)
@@ -106,16 +139,17 @@ def calculate_summary(results):
     return total_cloc, avg_complexity, median_complexity
 
 # Function to save summary to a txt file
-async def save_summary(total_cloc, avg_complexity, median_complexity, output_file):
-    
+async def save_summary(total_cloc, avg_complexity, median_complexity, time_estimate, output_file):
     summary = f"""Project Summary:
 Total CLOC: {total_cloc}
 Average Complexity Score: {avg_complexity:.2f}
 Median Complexity Score: {median_complexity:.2f}
+Estimated Time for Audit and Formal Verification: {time_estimate} week(s)
 """
     async with aiofiles.open(output_file, 'w') as f:
         await f.write(summary)
-
+        
+## Main function
 async def main():
     complexity_report_file = './output/complexity_report.json'
     summary_file = './output/project_summary.txt'
@@ -127,13 +161,17 @@ async def main():
     await save_results(results, complexity_report_file)
     
     print("Calculating summary statistics...")
-    total_cloc, avg_complexity, median_complexity = calculate_summary(results)
+    total_cloc, avg_complexity, median_complexity = await calculate_summary(results)
+    
+    # Calculate adjusted time estimate
+    adjusted_time_estimate = await calculate_adjusted_time_estimate(total_cloc, avg_complexity)
     
     print("Saving project summary...")
-    await save_summary(total_cloc, avg_complexity, median_complexity, summary_file)
+    await save_summary(total_cloc, avg_complexity, median_complexity, adjusted_time_estimate, summary_file)
     
     print(f"Analysis complete. Complexity report saved to {complexity_report_file}")
     print(f"Project summary saved to {summary_file}")
+    print(f"Estimated time for audit and formal verification: {adjusted_time_estimate} week(s)")
 
 # Run the async main function
 if __name__ == "__main__":

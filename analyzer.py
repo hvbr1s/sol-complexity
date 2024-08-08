@@ -102,32 +102,38 @@ async def save_results(results, output_file):
         await f.write(json.dumps(json_data, indent=2))
         
 async def calculate_adjusted_time_estimate(total_loc, avg_complexity):
-    '''
-    1. We start with the base estimate of 1 week per 750 lines of code.
-    2. We then apply a complexity multiplier based on the average complexity score:
+    """
+    Calculate the adjusted time estimate based on lines of code (LOC) and average complexity.
 
-        -For low complexity (1-3), we reduce the estimate by 20%.
-        -For medium complexity (4-7), we apply a linear adjustment, increasing or decreasing the estimate by up to 20%.
-        -For high complexity (8-10), we increase the estimate more significantly, up to 110% more for a complexity of 10.
-
-    3. We multiply the base estimate by this complexity multiplier.
-    4. Finally, we round up to the nearest whole week.
+    Steps:
+    1. Start with the base estimate of 1 week per 750 lines of code.
+    2. Apply a complexity multiplier based on the average complexity score:
+        - For low complexity (1-3), reduce the estimate by 20%.
+        - For medium complexity (4-7), apply a linear adjustment, increasing or decreasing the estimate by up to 20%.
+        - For high complexity (8-10), increase the estimate more significantly, up to 110% more for a complexity of 10.
+    3. Multiply the base estimate by this complexity multiplier.
+    4. Round up to the nearest whole week.
+    """
     
-    '''
-    
-    
+    # Step 1: Calculate the base estimate (in weeks)
     base_estimate_weeks = total_loc / 750
     print(f'Base estimate weeks: {base_estimate_weeks}')
     
+    # Step 2: Determine the complexity multiplier
     if avg_complexity <= 3:
-        complexity_multiplier = 0.8  
+        # Low complexity: reduce time by 20%
+        complexity_multiplier = 0.8
     elif 3 < avg_complexity <= 7:
-        complexity_multiplier = 1 + (avg_complexity - 5) * 0.1  
+        # Medium complexity: linear adjustment
+        complexity_multiplier = 1 + (avg_complexity - 5) * 0.1
     else:
-        complexity_multiplier = 1.5 + (avg_complexity - 7) * 0.2  
+        # High complexity: significant increase
+        complexity_multiplier = 1.5 + (avg_complexity - 7) * 0.2
     
+    # Step 3: Adjust the base estimate with the complexity multiplier
     adjusted_estimate_weeks = base_estimate_weeks * complexity_multiplier
     
+    # Step 4: Round up to the nearest whole week
     return math.ceil(adjusted_estimate_weeks)
 
 # Function to calculate summary statistics

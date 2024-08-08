@@ -41,7 +41,7 @@ async def get_rust_files_info():
                 "blank_lines": file_info.get('blank', 0),
                 "file_content": file_content
             }
-    
+
     return rust_files
 
 # Function to run the bot on a file and get the complexity score
@@ -82,9 +82,11 @@ async def get_complexity_score(file_path, file_info):
 async def analyze_rust_programs():
     rust_files = await get_rust_files_info()
     results = []
+    program_counter = 0
     
     for file_path, file_info in rust_files.items():
         score, rationale, code_lines = await get_complexity_score(file_path, file_info)
+        program_counter += 1
         if score is not None:
             results.append({
                 'file': file_path,
@@ -92,8 +94,9 @@ async def analyze_rust_programs():
                 'rationale': rationale,
                 'cloc': code_lines
             })
-    
-    return results
+            
+    print(f'Number of programs in this repo: {program_counter}')  
+    return results, program_counter
 
 # Function to save results to a json file
 async def save_results(results, output_file):
@@ -145,9 +148,10 @@ async def calculate_summary(results):
     return total_cloc, avg_complexity, median_complexity
 
 # Function to save summary to a txt file
-async def save_summary(total_cloc, avg_complexity, median_complexity, time_estimate, output_file):
+async def save_summary(total_cloc, avg_complexity, median_complexity, time_estimate, output_file, program_counter):
     summary = f"""Project Summary:
 Total CLOC: {total_cloc}
+Number of programs: {program_counter}
 Average Complexity Score: {avg_complexity:.2f}
 Median Complexity Score: {median_complexity:.2f}
 Estimated Time for Audit and Formal Verification: {time_estimate} week(s)
@@ -161,7 +165,7 @@ async def main():
     summary_file = './output/project_summary.txt'
     
     print("Analyzing Rust programs...")
-    results = await analyze_rust_programs()
+    results, program_counter = await analyze_rust_programs()
     
     print("Saving complexity report...")
     await save_results(results, complexity_report_file)
@@ -173,7 +177,7 @@ async def main():
     adjusted_time_estimate = await calculate_adjusted_time_estimate(total_cloc, avg_complexity)
     
     print("Saving project summary...")
-    await save_summary(total_cloc, avg_complexity, median_complexity, adjusted_time_estimate, summary_file)
+    await save_summary(total_cloc, avg_complexity, median_complexity, adjusted_time_estimate, summary_file, program_counter)
     
     print(f"Analysis complete. Complexity report saved to {complexity_report_file}")
     print(f"Project summary saved to {summary_file}")

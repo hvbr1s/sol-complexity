@@ -15,13 +15,22 @@ The full content of the file will be provided below.
 
 With this in mind, think in your head about the following:
 
-1. Consider the code metrics provided above, paying particular attention to code_lines.
+1. Consider the code metrics provided above, paying particular attention to code_lines and comment_lines.
 2. Carefully review the full file content provided.
 3. Analyze the potential complexity of the Solana program based on the number of lines of code and actual code content.
-4. Keep in mind Solana-specific complexities that might be present in the code.
-5. Consider Solana-specific security-critical aspects that should be reviewed, based on the actual implementation.
-6. Evaluate the program's potential challenges for formal verification, taking into account the specific code structures, logic and higher complexity when formally verifying non-linear math.
-7. Assign a complexity score from 1 to 10, where:
+4. Evaluate the program's potential challenges for formal verification, taking into account the specific code structures, logic, and higher complexity when formally verifying non-linear math.
+5. Consider these factors as particularly impactful on complexity:
+    - The frequency and complexity of Cross-Program Invocations (CPI).
+    - NOT using the Anchor framework. Programs using Anchor typically use macros such as #[program], #[derive(Accounts)], #[account], etc.
+    - Use of floating points (f32 or f64) instead of scaled integers.
+    - Reliance on custom libraries over established ones (for example SPL library).
+    - Implementation of non-linear mathematical operations such as checked_mul or checked_div.
+    - High number of lines of code (over 1000).
+    - Lack of comments in the codebase relative to the total line of codes.
+    - The number of programs in the project and their interconnections.
+    - The use of floating points (f32 or f64) instead of scaled integers.
+
+6. Assign a complexity score from 1 to 10, where:
    1: Very simple Solana program, easily auditable and verifiable
    5: Moderate complexity, requires careful review of Solana-specific constructs
    10: Extremely complex Solana program, high risk, extensive audit required

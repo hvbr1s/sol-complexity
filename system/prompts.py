@@ -23,7 +23,7 @@ When provided with the Solana program to analyze, consider the following:
      * 500-1000 lines: Large
      * > 1000 lines: Very large
 
-3. Evaluate the program's potential challenges for formal verification, considering:
+3. IMPORTANTLY, evaluate the program's potential challenges for formal verification, considering:
    - Specific code structures and logic
    - Higher complexity when formally verifying non-linear math
    - Presence of floating-point operations (f32 or f64) vs. scaled integers
@@ -40,20 +40,16 @@ When provided with the Solana program to analyze, consider the following:
 5. Consider security-focused elements:
    - Proper handling of account ownership and type checks
    - Correct implementation of rent exemption checks
-   - Potential reentrancy vulnerabilities in CPIs
 
 6. Analyze external dependencies:
    - Number and nature of external crates used
 
-7. Assess test coverage:
-   - Presence or absence of comprehensive tests
-
-8. Identify critical functions:
+7. Identify critical functions:
    - Locate and briefly note the most complex or security-critical functions
 
-9. Evaluate the ratio of comments to code
+8. Evaluate the ratio of comments to code
 
-10. Assign a complexity score from 1 to 10, where:
+9. Assign a complexity score from 1 to 10, where:
     1-3: Simple programs with straightforward logic and minimal Solana-specific constructs
     4-6: Moderate complexity with some Solana-specific features and potential security considerations
     7-10: High complexity programs with multiple CPIs, complex account structures, and advanced Solana features

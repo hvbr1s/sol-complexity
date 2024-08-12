@@ -11,7 +11,7 @@ When provided with the Solana program to analyze, consider the following and THI
    - File name: {file_path}
    - Number of lines of code: {code_lines}
    - Number of lines of comments: {comment_lines}
-   - Percentage of the code that is commented: {code_to_comment_ratio}
+   - Percentage of the code that is commented: {code_to_comment_ratio}%
 
 2. Analyze the potential complexity of the Solana program based on:
    - Number of lines of code

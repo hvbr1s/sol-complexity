@@ -48,7 +48,7 @@ async def analyze_rust_programs():
                 'score': score,
                 'rationale': rationale,
                 'cloc': code_lines,
-                'code to comment raio': code_to_comment_ratio
+                'code to comment ratio': str(code_to_comment_ratio)
             })
             
     print(f'Number of programs in this repo: {program_counter}')  
@@ -120,24 +120,24 @@ async def main():
     complexity_report_file = './output/complexity_report.json'
     summary_file = './output/project_summary.txt'
     
-    print("Analyzing Rust programs...")
+    print("Analyzing Rust programs...🕵️‍♂️")
     results, program_counter = await analyze_rust_programs()
     
-    print("Saving complexity report...")
+    print("Saving complexity report...💾")
     await save_results(results, complexity_report_file)
     
-    print("Calculating summary statistics...")
+    print("Calculating summary statistics...🤔")
     total_cloc, avg_complexity, median_complexity = await calculate_summary(results)
     
     # Calculate adjusted time estimate
     adjusted_time_estimate = await calculate_adjusted_time_estimate(total_cloc, avg_complexity)
     
-    print("Saving project summary...")
+    print("Saving project summary...💾")
     await save_summary(total_cloc, avg_complexity, median_complexity, adjusted_time_estimate, summary_file, program_counter)
     
-    print(f"Analysis complete. Complexity report saved to {complexity_report_file}")
-    print(f"Project summary saved to {summary_file}")
-    print(f"Estimated time for audit and formal verification: {adjusted_time_estimate} week(s)")
+    print(f"Analysis complete. Complexity report saved to {complexity_report_file} 💾")
+    print(f"Project summary saved to {summary_file} 💾")
+    print(f"Estimated time for audit and formal verification: {adjusted_time_estimate} week(s) 🗓️")
 
 # Run the async main function
 if __name__ == "__main__":

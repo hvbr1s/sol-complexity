@@ -75,7 +75,7 @@ async def calculate_adjusted_time_estimate(total_loc, avg_complexity):
     """
     
     # Step 1: Calculate the base estimate (in weeks)
-    base_estimate_weeks = total_loc / 750
+    base_estimate_weeks = total_loc / 1000
     print(f'Base estimate weeks: {base_estimate_weeks}')
     
     # Step 2: Determine the complexity multiplier
@@ -142,3 +142,4 @@ async def main():
 # Run the async main function
 if __name__ == "__main__":
     asyncio.run(main())
+    

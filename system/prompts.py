@@ -35,13 +35,13 @@ When provided with the Solana program to analyze, consider the following and THI
    - Handling of multiple signers or complex signer validation
    - Reliance on custom libraries over established ones (e.g., SPL library)
 
-
 5. Consider security-focused elements:
    - Proper handling of account ownership and type checks
    - Correct implementation of rent exemption checks
 
 6. Analyze external dependencies:
    - Number and nature of external crates used
+   - Use of the Anchor framework which makes the code easier to read and reason about (e.g. 'use anchor_lang')
 
 7. Identify critical functions:
    - Locate and briefly note the most complex or security-critical functions

@@ -3,7 +3,8 @@ import math
 import json
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-from system.prompts import preprare_prompt
+from system.prompt_sol import preprare_sol_prompt
+from system.prompt_evm import preprare_evm_prompt
 
 # Load secrets
 load_dotenv()
@@ -26,7 +27,7 @@ async def get_complexity_score(file_path, file_info):
             temperature=0.0,
             model=openai_model_prod,
             messages=[
-                {"role": "system", "content": await preprare_prompt(file_path, code_lines , file_info['comment_lines'], code_to_comment_ratio)},
+                {"role": "system", "content": await preprare_sol_prompt(file_path, code_lines , file_info['comment_lines'], code_to_comment_ratio)},
                 {"role": "user", "content": rust_program}
             ],
             response_format= { "type": "json_object" },

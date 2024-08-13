@@ -40,7 +40,7 @@ async def analyze_rust_programs():
     program_counter = 0
     
     for file_path, file_info in rust_files.items():
-        score, rationale, code_lines, code_to_comment_ratio = await get_complexity_score(file_path, file_info)
+        score, rationale, code_lines, code_to_comment_ratio = await get_complexity_score(file_path, file_info, chain="sol")
         program_counter += 1
         if score is not None:
             results.append({
@@ -48,7 +48,7 @@ async def analyze_rust_programs():
                 'score': score,
                 'rationale': rationale,
                 'cloc': code_lines,
-                'code to comment ratio': str(code_to_comment_ratio)
+                'code to comment percent ratio': str(code_to_comment_ratio)
             })
             
     print(f'Number of programs in this repo: {program_counter}')  
@@ -65,7 +65,7 @@ async def calculate_adjusted_time_estimate(total_loc, avg_complexity):
     Calculate the adjusted time estimate based on lines of code (LOC) and average complexity.
 
     Steps:
-    1. Start with the base estimate of 1 week per 750 lines of code.
+    1. Start with the base estimate of 1 week per 1000 lines of code.
     2. Apply a complexity multiplier based on the average complexity score:
         - For low complexity (1-3), reduce the estimate by 20%.
         - For medium complexity (4-7), apply a linear adjustment, increasing or decreasing the estimate by up to 20%.
@@ -142,4 +142,3 @@ async def main():
 # Run the async main function
 if __name__ == "__main__":
     asyncio.run(main())
-    

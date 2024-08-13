@@ -1,5 +1,5 @@
 
-async def preprare_sol_prompt(file_path, code_lines, comment_lines, code_to_comment_ratio):
+async def prepare_sol_prompt(file_path, code_lines, comment_lines, code_to_comment_ratio):
     try:
         SOL_ANALYZER = f'''     
 You are an expert security researcher specializing in manual audits and formal verification of Rust-based Solana programs. 
@@ -10,8 +10,6 @@ You will be provided the code for a Solana program named {file_path}, look at it
 
 1. Analyze the potential complexity of the Solana program based on the following:
    - Number of lines of code: {code_lines}
-   - Number of lines of comments: {comment_lines}
-   - Percentage of commented lines of code: {code_to_comment_ratio}%
    - Actual code content and structure
    - Program size categorization:
      * < 100 lines: Very small
@@ -44,6 +42,7 @@ You will be provided the code for a Solana program named {file_path}, look at it
    - Locate and briefly note the most complex or security-critical functions
 
 7. Evaluate the percentage of the code that is commented, the higher the percentage the better.
+   - Percentage of commented lines of code: {code_to_comment_ratio}%
 
 8. Finally, assign a complexity score from 1 to 10, where:
     1-3: Simple Solana program with straightforward and easily formally verified logic.
